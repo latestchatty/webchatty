@@ -1,0 +1,14 @@
+{
+  "name": "wc-data-sources",
+  "version": "0.0.1",
+  "description": "WinChatty - Data Sources",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "wc-common": "*",
+    "wc-data": "*",
+    "lodash": "^3.10.1",
+    "pg": "^4.4.1",
+    "mysql": "^2.8.0"
+  }
+}

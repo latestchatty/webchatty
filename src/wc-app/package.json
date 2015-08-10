@@ -1,0 +1,15 @@
+{
+  "name": "wc-app",
+  "version": "0.0.1",
+  "description": "WinChatty - App",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "wc-common": "*",
+    "wc-data": "*",
+    "express": "^4.13.2",
+    "morgan": "^1.6.1",
+    "compression": "^1.5.2",
+    "lodash": "^3.10.1"
+  }
+}

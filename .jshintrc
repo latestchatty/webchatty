@@ -1,0 +1,13 @@
+{
+  "node": true,
+  "bitwise": true,
+  "singleGroups": true,
+  "strict": true,
+  "undef": true,
+  "unused": false,
+  "trailing": true,
+  "curly": true,
+  "futurehostile": true,
+  "forin": true,
+  "eqeqeq": true
+}

@@ -1,0 +1,11 @@
+{
+  "name": "wc-data",
+  "version": "0.0.1",
+  "description": "WinChatty - Data Structures",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "wc-common": "*",
+    "lodash": "^3.10.1"
+  }
+}

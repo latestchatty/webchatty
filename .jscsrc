@@ -1,0 +1,7 @@
+{
+  "preset": "node-style-guide",
+  "maximumLineLength": 120,
+  "disallowTrailingWhitespace": null,
+  "requireCapitalizedComments": null,
+  "requireTrailingComma": null
+}
