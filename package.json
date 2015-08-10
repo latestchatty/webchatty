@@ -1,13 +1,13 @@
 {
-  "name": "winchatty",
-  "author": "Brian Luft",
+  "name": "webchatty",
+  "author": "Andy Christianson, Brian Luft, Willie Zutz",
   "license": "MIT",
-  "version": "0.0.2",
-  "description": "WinChatty forum service",
+  "version": "0.0.1",
+  "description": "Web-based threaded forum software.",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/electroly/winchatty.git"
+    "url": "git://github.com/webchatty/webchatty.git"
   },
   "dependencies": {
     "wc-common": "*",
@@ -17,18 +17,17 @@
     "ini": "^1.3.4"
   },
   "devDependencies": {
-    "jshint": "^2.8.0",
-    "jscs": "^2.0.0",
+    "eslint": "^0.24.0",
     "doctoc": "^0.14.2"
   },
   "scripts": {
     "preinstall": "npm install src/wc-*",
     "start": "./index.js",
-    "lint": "jshint -c .jshintrc index.js $(find src -type f -name '*.js') && jscs -c .jscsrc index.js $(find src -type f -name '*.js')",
+    "lint": "eslint -c .eslintrc index.js $(find src -type f -name '*.js')",
     "doctoc": "ls doc/*.md | xargs -L 1 doctoc --notitle",
     "dev": "npm install && npm prune && npm run lint && npm start"
   },
   "bin": {
-    "winchatty": "index.js"
+    "webchatty": "index.js"
   }
 }

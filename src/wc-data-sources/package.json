@@ -1,7 +1,7 @@
 {
   "name": "wc-data-sources",
   "version": "0.0.1",
-  "description": "WinChatty - Data Sources",
+  "description": "WebChatty - Data Sources",
   "main": "index.js",
   "private": true,
   "dependencies": {

@@ -1,7 +1,7 @@
 {
   "name": "wc-common",
   "version": "0.0.1",
-  "description": "WinChatty - Common Utilities",
+  "description": "WebChatty - Common Utilities",
   "main": "index.js",
   "private": true,
   "dependencies": {

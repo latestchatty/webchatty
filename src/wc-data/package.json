@@ -1,7 +1,7 @@
 {
   "name": "wc-data",
   "version": "0.0.1",
-  "description": "WinChatty - Data Structures",
+  "description": "WebChatty - Data Structures",
   "main": "index.js",
   "private": true,
   "dependencies": {
