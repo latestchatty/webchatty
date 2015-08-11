@@ -4,7 +4,8 @@
   },
   "globals": {
     "_": true,
-    "angular": true
+    "angular": true,
+    "document": true
   },
   "rules" : {
     "semi": [2, "never"],

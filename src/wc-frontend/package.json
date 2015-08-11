@@ -1,20 +1,15 @@
 {
-  "name": "chatty",
+  "name": "wc-frontend",
   "version": "0.0.1",
-  "description": "A web based alternate client for the shacknews chatty (http://www.shacknews.com/chatty).",
-  "author": "Andy Christianson",
-  "license": "MIT",
-  "repository": "https://github.com/NiXXeD/chatty",
+  "description": "WebChatty - Frontend",
+  "private": true,
   "scripts": {
-    "clean": "gulp clean",
-    "lint": "eslint src",
-    "build": "npm install && bower install && gulp clean && gulp build",
-    "start": "npm run build && http-server build -p 3000 -a localhost -o"
+    "postinstall": "bower install && gulp clean && gulp build",
+    "clean": "gulp clean"
   },
   "dependencies": {
     "bower": "^1.4.1",
     "del": "^1.2.0",
-    "eslint": "^0.24.0",
     "gulp": "^3.9.0",
     "gulp-angular-templatecache": "^1.7.0",
     "gulp-changed": "^1.2.1",

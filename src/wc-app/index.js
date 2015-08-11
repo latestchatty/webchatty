@@ -25,10 +25,7 @@ var Service = wcData.Service
 // Locates the .js files in the routes/ directory, loads them, and runs them so that they will add their routes to
 // the app object (accessed via the Service object).
 function registerRoutes(dir, service) {
-    _(common.findFilesSync(dir))
-        .filter(function(x) {
-            return path.extname(x) === '.js'
-        })
+    _.filter(common.findFilesSync(dir), function(x) { return path.extname(x) === '.js' })
         .forEach(function(filePath) {
             require(filePath)(service)
             console.log('Route: /' + path.basename(path.relative(path.join(__dirname, 'routes'), filePath), '.js'))
