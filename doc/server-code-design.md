@@ -1,6 +1,6 @@
-# WinChatty Code Design
+# WebChatty Server Code Design
 
-<!-- use "make doctoc" to generate this table of contents. --> 
+<!-- use "npm run doctoc" to generate this table of contents. --> 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -13,7 +13,7 @@
   - [ModFlag enum](#modflag-enum)
   - [PostChangeType enum](#postchangetype-enum)
   - [MarkedPostType enum](#markedposttype-enum)
-  - [WinChattyException object](#winchattyexception-object)
+  - [ApiException object](#apiexception-object)
   - [UtcDateTime object](#utcdatetime-object)
   - [UserRegistrationDate object](#userregistrationdate-object)
   - [UserCredentials object](#usercredentials-object)
@@ -106,7 +106,7 @@ Property | Value | Description
 `COLLAPSED` | `'collapsed'` | Collapsed by the user
 
 ___
-### WinChattyException object
+### ApiException object
 Property | Type | Description
 --- | --- | ---
 `code` | string | Error code starting with 'ERR\_' (e.g. ERR_SERVER, ERR_ARGUMENT)
@@ -210,7 +210,7 @@ Property | Type | Description
 >  Instructs the database to reindex a particular post.  If such an operation is not applicable for a particular backend, it can do nothing in response.
 
 > **setPostCategory(string username, string password, int postId, ModFlag category) : void**   
-> Instructs the database to moderate a particular post.  The user must be a moderator.  WinChattyException is thrown if the user is not a moderator.  Usernames are case insensitive.
+> Instructs the database to moderate a particular post.  The user must be a moderator.  ApiException is thrown if the user is not a moderator.  Usernames are case insensitive.
 
 > **getUserCategoryFilters(string username) : UserCategoryFilters**   
 > Gets the user's moderation flag filter settings.  Usernames are case insensitive.

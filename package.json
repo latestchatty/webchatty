@@ -23,7 +23,7 @@
   "scripts": {
     "preinstall": "npm install src/wc-*",
     "start": "./index.js",
-    "lint": "eslint -c .eslintrc index.js $(find src -type f -name '*.js')",
+    "lint": "eslint -c .eslintrc index.js src",
     "doctoc": "ls doc/*.md | xargs -L 1 doctoc --notitle",
     "dev": "npm install && npm prune && npm run lint && npm start"
   },

@@ -24,6 +24,5 @@ The following native clients can connect to WebChatty servers:
 - [Latest Chatty 8](https://www.microsoft.com/en-us/store/apps/latest-chatty-8/9wzdncrdklbd) (Windows)
 
 Read the documentation:
-- [WinChatty v2 API](https://github.com/webchatty/webchatty/blob/master/doc/winchatty-v2-api.md)
-- [WinChatty v1 API](https://github.com/webchatty/webchatty/blob/master/doc/winchatty-v1-api.md)
+- [WebChatty API](https://github.com/webchatty/webchatty/blob/master/doc/webchatty-api.md)
 - [Server Code Design](https://github.com/webchatty/webchatty/blob/master/doc/code-design.md)

@@ -16,11 +16,11 @@
 
 'use strict'
 
-// WebChattyException(string code, string message)
-function WinChattyException(code, message) {
+// ApiException(string code, string message)
+function ApiException(code, message) {
     this.error = true
     this.code = code
     this.message = message
 }
 
-module.exports = WinChattyException
+module.exports = ApiException

@@ -21,7 +21,7 @@ var common = require('wc-common')
 var ChattyDb = wcData.ChattyDb
 var ModFlag = wcData.ModFlag
 var UserRegistrationDate = wcData.UserRegistrationDate
-var WinChattyException = wcData.WinChattyException
+var ApiException = wcData.ApiException
 
 function unused() {}
 
@@ -112,7 +112,7 @@ function MemoryChattyDb(mods, users) {
     // Searches the comments.  The string arguments may be blank strings.  The category may be a blank string.
     // Searches are case insensitive.
     function search(/*terms, author, parentAuthor, category, offset, limit, oldestFirst*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // requestReindex(int postId) : void
@@ -123,46 +123,46 @@ function MemoryChattyDb(mods, users) {
     }
 
     // setPostCategory(string username, string password, int postId, ModFlag category) : void
-    // Instructs the database to moderate a particular post.  The user must be a moderator.  WinChattyException is
+    // Instructs the database to moderate a particular post.  The user must be a moderator.  ApiException is
     // thrown if the user is not a moderator.
     function setPostCategory(/*username, password, postId, category*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // getUserCategoryFilters(string username) : UserCategoryFilters
     // Gets the user's moderation flag filter settings.  Usernames are case insensitive.
     function getUserCategoryFilters(/*username*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // setUserCategoryFilters(string username, UserCategoryFilters filters) : void
     // Sets the user's moderation flag filter settings.  Usernames are case insensitive.
     function setUserCategoryFilters(/*username, filters*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // getUserMarkedPosts(string username) : UserMarkedPost[]
     // Gets the most recent N marked posts, where N is decided by the ChattyDb.  Usernames are case insensitive.
     function getUserMarkedPosts(/*username*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // setUserMarkedPost(string username, int postId, MarkedPostType type) : void
     // Marks or unmarks a post.  If `postId` is -1, then all posts are unmarked.  Usernames are case insensitive.
     function setUserMarkedPost(/*username, postId, type*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // getUserClientData(string username, string client) : string
     // Gets the client data.  Returns "" if there is no client data.  Usernames are case insensitive.
     function getUserClientData(/*username, client*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // setUserClientData(string username, string client, string data) : void
     // Sets the client data.  Usernames are case insensitive.
     function setUserClientData(/*username, client, data*/) {
-        throw new WinChattyException('ERR_SERVER', 'Not implemented.')
+        throw new ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     //TODO: unused variables for now

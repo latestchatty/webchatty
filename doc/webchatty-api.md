@@ -1,6 +1,6 @@
-# WinChatty v2 API
+# WebChatty API
 
-<!-- use "make doctoc" to generate this table of contents. --> 
+<!-- use "npm run doctoc" to generate this table of contents. --> 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -63,14 +63,32 @@
   - [POST /v2/notifications/waitForNotification](#post-v2notificationswaitfornotification)
   - [POST /v2/notifications/getUserSetup](#post-v2notificationsgetusersetup)
   - [POST /v2/notifications/setUserSetup](#post-v2notificationssetusersetup)
+- [Legacy v1 API](#legacy-v1-api)
+  - [Data Types (v1)](#data-types-v1)
+  - [Error Responses (v1)](#error-responses-v1)
+  - [GET /v1/about](#get-v1about)
+  - [GET /v1/index.json](#get-v1indexjson)
+  - [GET /v1/`[INT]`.json](#get-v1intjson)
+  - [GET /v1/`[INT]`.`[INT]`.json](#get-v1intintjson)
+  - [GET /v1/thread/`[INT]`.json](#get-v1threadintjson)
+  - [GET /v1/search.json](#get-v1searchjson)
+  - [GET /v1/stories.json](#get-v1storiesjson)
+  - [GET /v1/stories/`[INT]`.json](#get-v1storiesintjson)
+  - [GET /v1/stories/`[INT]`.`[INT]`.json](#get-v1storiesintintjson)
+  - [POST /v1/messages.json](#post-v1messagesjson)
+  - [POST /v1/messages/`[INT]`.json](#post-v1messagesintjson)
+  - [POST /v1/messages/send/](#post-v1messagessend)
+  - [POST /v1/post/](#post-v1post)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
-This documents the WinChatty v2 API, a backend web service for a chatty-style forum.  This API supports [Lamp](http://shackwiki.com/wiki/Lamp), [Shack Browse](https://play.google.com/store/apps/details?id=net.woggle.shackbrowse&hl=en), [NiXXeD/chatty](https://github.com/NiXXeD/chatty), and other clients.
+This documents the WebChatty API, a backend web service for a chatty-style forum.  This API supports [Lamp](http://shackwiki.com/wiki/Lamp), [Shack Browse](https://play.google.com/store/apps/details?id=net.woggle.shackbrowse&hl=en), [NiXXeD/chatty](https://github.com/NiXXeD/chatty), and other clients.
+
+This API implements versions 1 and 2 of the WinChatty API, allowing it to support preexisting clients of that API.  WinChatty-compatible methods begin with /v1/ and /v2/, respectively.  New WebChatty methods will be added with a /v3/ prefix.  
 
 ### Protocols
-The v2 API operates via HTTP or HTTPS.  The client may choose either one, but there's little reason to use HTTP.  I recommend using HTTPS for everything except high-latency cellular connections.  All responses are JSON.
+The API operates via HTTP or HTTPS.  The client may choose either one, but there's little reason to use HTTP.  I recommend using HTTPS for everything except high-latency cellular connections.  All responses are JSON.
 
 Client applications should be configured to use GZIP compression and verify SSL certificates.  These are both very important, but GZIP compression especially so.  On average GZIP cuts the size of responses down by 75%.  Try calling [/v2/checkConnection](#get-v2checkconnection) to verify that you are correctly using GZIP and SSL.
 
@@ -1156,3 +1174,235 @@ Response:
 
 Errors:
 - `ERR_INVALID_LOGIN`
+
+## Legacy v1 API
+This API exists only to support [Latest Chatty](https://itunes.apple.com/us/app/latest-chatty/id287316743?mt=8) on iOS.  Do not use it in new applications.
+
+### Data Types (v1)
+The v1 comment data structure is hierarchical.  Each comment has a list of its children, and each of its children have lists of their children, and so forth.  The children list is empty for leaf nodes.
+
+Type | Description
+--- | ---
+`[V1_DAT]` | Date and time in freeform text like "Aug 02, 2015 8:01pm PDT".  Note the Pacific time zone, rather than UTC.
+`[V1_MOD]` | Moderation flag enum.  Same as `[MOD]` except it uses `"offtopic"` instead of `"tangent"`.  One of the following strings: `"ontopic"` `"nws"` `"stupid"` `"political"` `"offtopic"` `"informative"`
+
+`[V1_COMMENT]` - A comment and its nested children.  This is a recursive data structure.
+>```
+>{
+>   "comments": [V1_COMMENT*],
+>   "reply_count": [INT], // includes itself, so it's always at least 1
+>   "body": [STR],
+>   "date": [V1_DAT],
+>   "participants": [STR*], // list of usernames that posted in this thread
+>   "category": [V1_MOD],
+>   "last_reply_id": [STR], // ID of most recent reply converted to a string
+>   "author": [STR],
+>   "preview": [STR], // tags stripped out, spoilers replaced with underscores, truncated with ellipsis
+>   "id": [STR] // post ID converted to a string
+>}
+>```
+
+`[V1_PAGE]` - A page of comments.
+>```
+>{
+>   "comments": [V1_COMMENT*],
+>   "page": [STR], // 1-based page number converted to a string
+>   "last_page": [INT],
+>   "story_id": 0, 
+>   "story_name": "Latest Chatty" 
+>}
+>```
+
+`[V1_THREAD]` - A thread of comments.
+>```
+>{
+>   "comments": [V1_COMMENT*],
+>   "page": 1, 
+>   "last_page": 1, 
+>   "story_id": 0, 
+>   "story_name": "Latest Chatty", 
+>}
+>```
+
+`[V1_SEARCH_RESULT]` - A comment search result.
+>```
+>{
+>   "comments": [],
+>   "last_reply_id": null, 
+>   "author": [STR],
+>   "date": [V1_DAT],
+>   "story_id": 0, 
+>   "category": null, 
+>   "reply_count": null, 
+>   "id": [STR], // post ID converted to a string
+>   "story_name": "", 
+>   "preview": [STR], // tags stripped out, spoilers replaced with underscores, truncated with ellipsis
+>   "body": null 
+>}
+>```
+
+### Error Responses (v1)
+Errors are reported using the following JSON structure.
+
+```
+{
+   "faultCode": "AMFPHP_RUNTIME_ERROR", 
+   "faultString": [STR], // error message
+   "faultDetail": [STR] // source path and line
+}
+```
+
+### GET /v1/about
+**Deprecated.** Gets an HTML page with information about the server.
+
+### GET /v1/index.json
+**Deprecated.** Gets the first page of active threads.  This is the same as /v1/0.1.json.
+
+Response: `[V1_PAGE]`
+
+### GET /v1/`[INT]`.json
+**Deprecated.** Same as /v1/index.json.  The number in the URL is ignored.  Originally this retrieved a particular chatty (like a particular Morning Discussion or Evening Reading) prior to the "rolling" chatty concept.
+
+Response: `[V1_PAGE]`
+
+### GET /v1/`[INT]`.`[INT]`.json
+**Deprecated.** Gets the Nth page of active threads, where N is the second number in the URL.  The first number is ignored.
+
+Response: `[V1_PAGE]`
+
+### GET /v1/thread/`[INT]`.json
+**Deprecated.** Gets a particular thread and its replies.  The number in the URL is the ID of some post in the thread (not necessarily the root post).
+
+Response: `[V1_THREAD]`
+
+### GET /v1/search.json
+**Deprecated.** Comment search.  At least one of the parameters must be specified.
+
+Parameters:
+- `terms=[STR?]` - Search terms
+- `author=[STR?]` - Author
+- `parent_author=[STR?]` - Parent author
+- `page=[INT?]` - 1-based page number (defaults to 1)
+
+Response:
+```
+{
+   "terms": [STR],
+   "author": [STR],
+   "parent_author": [STR],
+   "last_page": [INT],
+   "comments": [V1_SEARCH_RESULT*]
+}
+```
+
+### GET /v1/stories.json
+**Deprecated.** Gets the first page of front-page news articles.
+
+Response:
+```
+[
+   {
+      "body": [STR], // same as preview
+      "comment_count": [INT],
+      "date": [V1_DAT],
+      "id": [INT],
+      "name": [STR],
+      "preview": [STR],
+      "url": [STR],
+      "thread_id": ""
+   },
+   …
+]
+```
+
+### GET /v1/stories/`[INT]`.json
+**Deprecated.** Gets the full story body.  The number in the URL is the story ID.
+
+Response:
+```
+{
+   "preview": [STR],
+   "name": [STR],
+   "body": [STR], // html
+   "date": [V1_DAT],
+   "comment_count": [INT], // not including the root post, so may be 0
+   "id": [INT],
+   "thread_id": [INT]
+}
+```
+
+### GET /v1/stories/`[INT]`.`[INT]`.json
+**Deprecated.** Same as /v1/stories/`[INT]`.json.  The second number in the URL is ignored.
+
+### POST /v1/messages.json
+**Deprecated.** Gets the first page of the user's Shackmessage inbox.  Username and password are passed via HTTP basic authentication.
+
+Response:
+```
+{
+   "user": [STR],
+   "messages": [
+      {
+         "id": [STR], // ID number converted to a string
+         "from": [STR],
+         "to": [STR],
+         "subject": [STR],
+         "date": [STR], // freeform date text like "August 1, 2015, 12:03 am"
+         "body": [STR],
+         "unread": [BIT]
+      },
+      …
+   ]
+}
+```
+
+Error: (plain text, not JSON)
+```
+error_get_failed
+```
+
+### POST /v1/messages/`[INT]`.json
+**Deprecated.** Marks a message as read.  Username and password are passed via HTTP basic authentication.  The number in the URL is the message ID to mark as read.
+
+Response: (plain text, not JSON)
+```
+ok
+```
+
+Error: (plain text, not JSON)
+```
+error_mark_failed
+```
+
+### POST /v1/messages/send/
+**Deprecated.** Sends a Shackmessage.  Username and password are passed via HTTP basic authentication.
+
+Parameters:
+- `to=[STR]` - Recipient username
+- `subject=[STR]` - Message subject
+- `body=[STR]` - Message body
+
+Response: (plain text, not JSON)
+```
+OK
+```
+
+Error: (plain text, not JSON)
+```
+error_send_failed
+```
+
+### POST /v1/post/
+**Deprecated.** Posts a comment.  Username and password are passed via HTTP basic authentication.
+
+Parameters:
+- `parent_id=[STR]` - Parent ID.  May be 0 or "" to post a root thread.
+- `body=[STR]` - Comment text.
+
+Response: (blank)
+
+Errors: (plain text, not JSON)
+- `error_login_failed`
+- `error_post_rate_limit`
+- `error_post_failed`
+
