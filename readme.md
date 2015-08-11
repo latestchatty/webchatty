@@ -1,4 +1,5 @@
 # WebChatty
+[![npm version](https://badge.fury.io/js/webchatty.svg)](http://badge.fury.io/js/webchatty)
 
 WebChatty is a web-based forum with a threaded discussion structure inspired by the Shacknews.com comments.  The WebChatty node.js server hosts the chatty web service and the Single Page Application (SPA) frontend.  The web service implements versions 1 and 2 of the existing [WinChatty](https://github.com/electroly/winchatty-server) API and adds additional WebChatty-specific functionality.
 
