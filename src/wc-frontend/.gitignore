@@ -1,0 +1,7 @@
+node_modules
+bower_components
+build
+npm-debug.log
+coverage
+.idea
+.c9/*

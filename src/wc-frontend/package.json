@@ -1,0 +1,31 @@
+{
+  "name": "chatty",
+  "version": "0.0.1",
+  "description": "A web based alternate client for the shacknews chatty (http://www.shacknews.com/chatty).",
+  "author": "Andy Christianson",
+  "license": "MIT",
+  "repository": "https://github.com/NiXXeD/chatty",
+  "scripts": {
+    "clean": "gulp clean",
+    "lint": "eslint src",
+    "build": "npm install && bower install && gulp clean && gulp build",
+    "start": "npm run build && http-server build -p 3000 -a localhost -o"
+  },
+  "dependencies": {
+    "bower": "^1.4.1",
+    "del": "^1.2.0",
+    "eslint": "^0.24.0",
+    "gulp": "^3.9.0",
+    "gulp-angular-templatecache": "^1.7.0",
+    "gulp-changed": "^1.2.1",
+    "gulp-clip-empty-files": "^0.1.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-if": "^1.2.5",
+    "gulp-minify-css": "^1.2.0",
+    "gulp-ng-annotate": "^1.0.0",
+    "gulp-server-livereload": "^1.4.0",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "http-server": "^0.8.0"
+  }
+}
