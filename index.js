@@ -17,8 +17,10 @@
 
 'use strict'
 
-var ini = require('ini')
 var path = require('path')
+global.appRoot = path.resolve(__dirname)
+
+var ini = require('ini')
 var fs = require('fs')
 var _ = require('lodash')
 var wcData = require('wc-data')

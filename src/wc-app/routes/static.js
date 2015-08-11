@@ -15,10 +15,10 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 'use strict'
+var path = require('path')
+var express = require('express')
 
 // route(Service service) : void
 module.exports = function(service) {
-    service.app.get('/v1/about', function(req, res) {
-        res.send('You are using WebChatty.')
-    })
+    service.app.use('/', express.static(path.join(global.appRoot, 'node_modules', 'wc-frontend', 'build')))
 }
