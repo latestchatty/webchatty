@@ -114,21 +114,14 @@ Property | Type | Description
 
 ___
 ### UtcDateTime object
-Property | Type | Description
---- | --- | ---
-`year` | int | Year (4-digit)
-`month` | int | Month (1-12)
-`day` | int | Day (1-31)
-`hour` | int | Hour (0-23)
-`minute` | int | Minute (0-59)
-`second` | int | Second (0-59)
+Really just a string, but formatted in the precise `DAT` format: "2013-12-01T19:39:00Z".  See the [WebChatty API](https://github.com/webchatty/webchatty/blob/master/doc/webchatty-api.md#data-types) for more information on the `DAT` type.
 
 ___
 ### UserRegistrationDate object
 Property | Type | Description
 --- | --- | ---
 `username` | string | Username
-`date` | UtcDateTime? | Registration date, or null if no registration date exists.
+`date` | UtcDateTime | Registration date
 
 ___
 ### UserCredentials object
@@ -188,46 +181,47 @@ Property | Type | Description
 `getUserClientData` | function | Callback function
 `setUserClientData` | function | Callback function
 
-  > **attach(Service instance) : void**   
+> **attach(Service instance) : Promise<void>**   
 > This is called by the engine when it first starts up.  The ChattyDb hangs onto the Service reference which it will use later to notify the engine of post updates.
+> `after` is: function(
 
-> **getPosts(int[] postIds) : Post[]**   
+> **getPosts(int[] postIds) : Promise<Post[]>**   
 > Retrieves a set of posts by post ID.  If a post ID does not exist or is nuked, then it is silently omitted from the returned array.
 
-> **getPostRange(int startId, int count, bool reverse) : Post[]**   
+> **getPostRange(int startId, int count, bool reverse) : Promise<Post[]>**   
 > Retrieves a set of posts which are contiguous by post ID.  If a post in the range does not exist or is nuked, then it is silently omitted from the returned array.  If `reverse` is true, then the returned posts start at `startId` and walk backwards.
 
-> **getThreads(int[] postIds) : Post[]**   
+> **getThreads(int[] postIds) : Promise<Post[]>**   
 > Gets an unordered list of posts in the threads that contain `postIds`.  Each post ID is not necessarily the root post, but may be any post in the thread.  If any post ID does not exist or is nuked, it is silently omitted from the resulting array.
 
-> **getUserRegistrationDates(string[] usernames) : UserRegistrationDate[]**   
-> Gets the registration dates of a set of usernames.  If `usernames` is empty, then all registration dates are returned.  Usernames are case insensitive.
+> **getUserRegistrationDates(string[] usernames) : Promise<UserRegistrationDate[]>**   
+> Gets the registration dates of a set of usernames.  If `usernames` is empty, then all registration dates are returned.  Usernames are case insensitive.  If a username is not found or the user has no registration date available, then the user is omitted from the result.
 
-> **search(string terms, string author, string parentAuthor, ModFlag? category, int offset, int limit, bool oldestFirst) : Post[]**   
+> **search(string terms, string author, string parentAuthor, ModFlag? category, int offset, int limit, bool oldestFirst) : Promise<Post[]>**   
 > Searches the comments.  The string arguments may be blank strings.  The category may be a blank string.  Searches are case insensitive.
 
-> **requestReindex(int postId) : void**   
+> **requestReindex(int postId) : Promise<void>**   
 >  Instructs the database to reindex a particular post.  If such an operation is not applicable for a particular backend, it can do nothing in response.
 
-> **setPostCategory(string username, string password, int postId, ModFlag category) : void**   
+> **setPostCategory(string username, string password, int postId, ModFlag category) : Promise<void>**   
 > Instructs the database to moderate a particular post.  The user must be a moderator.  ApiException is thrown if the user is not a moderator.  Usernames are case insensitive.
 
-> **getUserCategoryFilters(string username) : UserCategoryFilters**   
+> **getUserCategoryFilters(string username) : Promise<UserCategoryFilters>**   
 > Gets the user's moderation flag filter settings.  Usernames are case insensitive.
 
-> **setUserCategoryFilters(string username, UserCategoryFilters filters) : void**   
+> **setUserCategoryFilters(string username, UserCategoryFilters filters) : Promise<void>**   
 > Sets the user's moderation flag filter settings.  Usernames are case insensitive.
 
-> **getUserMarkedPosts(string username) : UserMarkedPost[]**   
+> **getUserMarkedPosts(string username) : Promise<UserMarkedPost[]>**   
 > Gets the most recent N marked posts, where N is decided by the ChattyDb.  Usernames are case insensitive.
 
-> **setUserMarkedPost(string username, int postId, MarkedPostType type) : void**   
+> **setUserMarkedPost(string username, int postId, MarkedPostType type) : Promise<void>**   
 > Marks or unmarks a post.  If `postId` is -1, then all posts are unmarked.  Usernames are case insensitive.
 
-> **getUserClientData(string username, string client) : string**   
+> **getUserClientData(string username, string client) : Promise<string>**   
 > Gets the client data.  Returns "" if there is no client data.  Usernames are case insensitive.
 
-> **setUserClientData(string username, string client, string data) : void**   
+> **setUserClientData(string username, string client, string data) : Promise<void>**   
 > Sets the client data.  Usernames are case insensitive.
 
 ___

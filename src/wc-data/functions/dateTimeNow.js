@@ -15,14 +15,9 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 'use strict'
+var toUtcDateTime = require('../functions/toUtcDateTime.js')
 
-// Service(express app, ChattyDb chattyDb, LolDb lolDB, function notifyPostChange, function notifyLolChange)
-function Service(app, chattyDb, lolDb, notifyPostChange, notifyLolChange) {
-    this.chattyDb = chattyDb
-    this.lolDb = lolDb
-    this.app = app
-    this.notifyPostChange = notifyPostChange
-    this.notifyLolChange = notifyLolChange
+// dateTimeNow() : UtcDateTime
+module.exports = function() {
+    return toUtcDateTime(new Date())
 }
-
-module.exports = Service

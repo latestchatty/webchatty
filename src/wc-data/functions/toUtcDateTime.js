@@ -16,10 +16,10 @@
 
 'use strict'
 
-// UserRegistrationDate(string username, UtcDateTime? date)
-function UserRegistrationDate(username, date) {
-    this.username = username
-    this.date = date
+// toUtcDateTime(Date date) : UtcDateTime
+// Format the UTC date like "2013-12-01T19:39:00Z"
+module.exports = function(date) {
+    // toISOString() returns "2013-12-01T19:39:00.000Z"
+    // snip off the milliseconds part and it's good
+    return date.toISOString().substr(0, 19) + 'Z'
 }
-
-module.exports = UserRegistrationDate

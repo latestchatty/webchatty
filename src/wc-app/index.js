@@ -43,7 +43,33 @@ exports.run = function(chattyDb, lolDb, port) {
     }))
     app.timeout = 0
 
-    var service = new Service(app, chattyDb, lolDb, null, null) // todo
+    // addRoute(string method, string routePath, function handler)
+    // method is: GET, POST
+    // handler is: function(req, res)
+    function addRoute(method, routePath, handler) {
+        var wrappedHandler = function(req, res) {
+            try {
+                handler(req, res)
+            } catch (ex) {
+                if (ex instanceof wcData.ApiException) {
+                    res.send(ex)
+                } else {
+                    console.log('Unexpected exception while handling ' + routePath + ': ')
+                    console.log(ex)
+                    res.send(new wcData.ApiException('ERR_SERVER', 'An unexpected error occurred.'))
+                }
+            }
+        }
+        if (method === 'GET') {
+            app.get(routePath, wrappedHandler)
+        } else if (method === 'POST') {
+            app.post(routePath, wrappedHandler)
+        } else {
+            throw 'Unexpected method in route: ' + method
+        }
+    }
+
+    var service = new Service(app, chattyDb, lolDb, null, null, addRoute) // todo
     chattyDb.attach(service)
     lolDb.attach(service)
 

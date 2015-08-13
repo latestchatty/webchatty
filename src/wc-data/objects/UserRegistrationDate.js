@@ -16,5 +16,10 @@
 
 'use strict'
 
-var common = require('wc-common')
-common.registerModuleObjects(__dirname, exports)
+// UserRegistrationDate(string username, UtcDateTime date)
+function UserRegistrationDate(username, date) {
+    this.username = username
+    this.date = date
+}
+
+module.exports = UserRegistrationDate

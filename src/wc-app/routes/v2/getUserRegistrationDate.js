@@ -15,6 +15,15 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 'use strict'
+var wcData = require('wc-data')
 
-var common = require('wc-common')
-common.registerModuleObjects(__dirname, exports)
+// route(Service service) : void
+module.exports = function(service) {
+    service.addRoute('GET', '/v2/getUserRegistrationDate', function(req, res) {
+        var usernames = wcData.getArg(req, 'username', { type: 'STR', list: true, min: 1, max: 50 })
+        service.chattyDb.getUserRegistrationDates(usernames)
+            .then(function(regDates) {
+                res.send({ users: regDates })
+            })
+    })
+}

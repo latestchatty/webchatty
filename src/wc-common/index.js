@@ -20,16 +20,6 @@ var path = require('path')
 var _ = require('lodash')
 var common = exports
 
-// arrayContains(object[] haystack, object needle) : bool
-exports.arrayContains = function(haystack, needle) {
-    for (var i = 0; i < haystack.length; i++) {
-        if (haystack[i] === needle) {
-            return true
-        }
-    }
-    return false
-}
-
 // isNotNull(object x) : bool
 exports.isNotNull = function(x) {
     return x !== null
@@ -66,7 +56,7 @@ exports.startsWithCapitalLetter = function(x) {
 
 // isJsObjectFile(string x) : bool
 function isJsObjectFile(x) {
-    return path.extname(x) === '.js' && common.startsWithCapitalLetter(path.basename(x))
+    return path.extname(x) === '.js' && path.basename(x) !== 'index.js'
 }
 
 // registerModuleObjects(string dir, object pkg)

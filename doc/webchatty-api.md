@@ -717,7 +717,7 @@ Response:
 ```
 
 ### GET /v2/getUserRegistrationDate
-Gets the registration date for one or more users.
+Gets the registration date for one or more users.  If a username does not exist or the user does not have a registration date available, then the user is silently omitted from the result array.
 
 Parameters:
 - `username=[STR+,50]` - List of Shacknews usernames.

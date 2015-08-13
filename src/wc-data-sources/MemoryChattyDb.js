@@ -16,6 +16,7 @@
 
 'use strict'
 var _ = require('lodash')
+var Promise = require('promise')
 var wcData = require('wc-data')
 var common = require('wc-common')
 var ChattyDb = wcData.ChattyDb
@@ -32,6 +33,7 @@ function MemoryChattyDb(mods, users) {
     var mPosts = [null] // Post[], the array index is the post number. Index 0 is reserved.
     var mThreads = [] // MemThread[]
     var mStartupDate = wcData.dateTimeNow() // UtcDateTime
+    var mAllUsers = _(mods).concat(users).value() // UserCredentials[]
 
     // MemThread(int id, UtcDateTime date, UtcDateTime bumpDate)
     function MemThread(id, date, bumpDate) {
@@ -47,122 +49,144 @@ function MemoryChattyDb(mods, users) {
 
     // containingThreadId(int postId) : int?
     function containingThreadId(postId) {
-        if (postExists(postId)) {
-            return mPosts[postId].threadId
-        }
-        else {
-            return null
-        }
+        return postExists(postId) ? mPosts[postId].threadId : null
     }
 
-    // attach(Service instance) : void
+    // attach(Service instance) : Promise<void>
     // This is called by the engine when it first starts up.  The ChattyDb hangs onto the Service reference which
     // it will use later to notify the engine of post updates.
     function attach(instance) {
-        mInstance = instance
+        return new Promise(function(resolve) {
+            mInstance = instance
+            resolve(null)
+        })
     }
 
-    // getPosts(int[] postIds) : Post[]
+    // getPosts(int[] postIds) : Promise<Post[]>
     // Retrieves a set of posts by post ID.  If a post ID does not exist or is nuked, then it is silently omitted from
     // the returned array.
     function getPosts(postIds) {
-        var validPostIds = _(postIds).filter(postExists)
-        return _(mPosts).at(validPostIds)
+        return new Promise(function(resolve) {
+            var validPostIds = _.filter(postIds, postExists)
+            resolve(_.at(mPosts, validPostIds))
+        })
     }
 
-    // getPostRange(int startId, int count, bool reverse) : Post[]
+    // getPostRange(int startId, int count, bool reverse) : Promise<Post[]>
     // Retrieves a set of posts which are contiguous by post ID.  If a post in the range does not exist or is nuked, then
     // it is silently omitted from the returned array.  If `reverse` is true, then the returned posts start at `startId`
     // and walk backwards.
     function getPostRange(startId, count, reverse) {
-        return getPosts(_.range(startId, reverse ? startId + count : startId - count))
+        return new Promise(function(resolve) {
+            resolve(getPosts(_.range(startId, reverse ? startId + count : startId - count)))
+        })
     }
 
-    // getThreads(int[] postIds) : Post[]
+    // getThreads(int[] postIds) : Promise<Post[]>
     // Gets an unordered list of posts in the threads that contain `postIds`.  Each post ID is not necessarily the root
     // post, but may be any post in the thread.  If any post ID does not exist or is nuked, it is silently omitted from
     // the resulting array.
     function getThreads(postIds) {
-        var threadIds = _(postIds).map(containingThreadId).filter(common.isNotNull).uniq()
-        return _(mPosts).filter(function(post) {
-            return post !== null && postExists(post.id) && _(threadIds).includes(post.threadId)
+        return new Promise(function(resolve) {
+            var threadIds = _(postIds).map(containingThreadId).filter(common.isNotNull).uniq().value()
+            resolve(_.filter(mPosts, function(post) {
+                return post !== null && postExists(post.id) && _.includes(threadIds, post.threadId)
+            }))
         })
     }
 
-    // getUserRegistrationDates(string[] usernames) : UserRegistrationDate[]
+    // getUserRegistrationDates(string[] usernames) : Promise<UserRegistrationDate[]>
     // Gets the registration dates of a set of usernames.  If `usernames` is empty, then all registration dates are
-    // returned.  Usernames are case insensitive.
+    // returned.  Usernames are case insensitive.  If a username is not found or the user has no registration date
+    // available, then the user is omitted from the result.
     function getUserRegistrationDates(usernames) {
-        var allLowercaseUsernames = _(users).concat(mods).map(function(x) { return x.username.toLowerCase() }).value()
-        if (usernames.length === 0) {
-            usernames = allLowercaseUsernames
-        }
-        return _(usernames)
-            .filter(function(x) {
-                return allLowercaseUsernames.includes(x.toLowerCase())
-            })
-            .map(function(x) {
-                return new UserRegistrationDate(x, mStartupDate)
-            })
-            .value()
+        return new Promise(function(resolve) {
+            var allLowercaseUsernames = _.map(mAllUsers, function(x) { return x.username.toLowerCase() })
+            if (usernames.length === 0) {
+                usernames = allLowercaseUsernames
+            }
+            resolve(_(usernames)
+                .filter(function(x) { return _.includes(allLowercaseUsernames, x.toLowerCase()) })
+                .map(function(x) { return new UserRegistrationDate(x, mStartupDate) })
+                .value())
+            console.log('ok')
+        })
     }
 
     // search(string terms, string author, string parentAuthor, ModFlag? category, int offset, int limit,
-    //   bool oldestFirst) : Post[]
+    //   bool oldestFirst) : Promise<Post[]>
     // Searches the comments.  The string arguments may be blank strings.  The category may be a blank string.
     // Searches are case insensitive.
     function search(/*terms, author, parentAuthor, category, offset, limit, oldestFirst*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // requestReindex(int postId) : void
+    // requestReindex(int postId) : Promise<void>
     // Instructs the database to reindex a particular post.  If such an operation is not applicable for a particular
     // backend, it can do nothing in response.
     function requestReindex(/*postId*/) {
-        // does nothing
+        return new Promise(function(resolve) {
+            resolve(null)
+        })
     }
 
-    // setPostCategory(string username, string password, int postId, ModFlag category) : void
+    // setPostCategory(string username, string password, int postId, ModFlag category) : Promise<void>
     // Instructs the database to moderate a particular post.  The user must be a moderator.  ApiException is
     // thrown if the user is not a moderator.
     function setPostCategory(/*username, password, postId, category*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // getUserCategoryFilters(string username) : UserCategoryFilters
+    // getUserCategoryFilters(string username) : Promise<UserCategoryFilters>
     // Gets the user's moderation flag filter settings.  Usernames are case insensitive.
     function getUserCategoryFilters(/*username*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // setUserCategoryFilters(string username, UserCategoryFilters filters) : void
+    // setUserCategoryFilters(string username, UserCategoryFilters filters) : Promise<void>
     // Sets the user's moderation flag filter settings.  Usernames are case insensitive.
     function setUserCategoryFilters(/*username, filters*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // getUserMarkedPosts(string username) : UserMarkedPost[]
+    // getUserMarkedPosts(string username) : Promise<UserMarkedPost[]>
     // Gets the most recent N marked posts, where N is decided by the ChattyDb.  Usernames are case insensitive.
     function getUserMarkedPosts(/*username*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // setUserMarkedPost(string username, int postId, MarkedPostType type) : void
+    // setUserMarkedPost(string username, int postId, MarkedPostType type) : Promise<void>
     // Marks or unmarks a post.  If `postId` is -1, then all posts are unmarked.  Usernames are case insensitive.
     function setUserMarkedPost(/*username, postId, type*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // getUserClientData(string username, string client) : string
+    // getUserClientData(string username, string client) : Promise<string>
     // Gets the client data.  Returns "" if there is no client data.  Usernames are case insensitive.
     function getUserClientData(/*username, client*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
-    // setUserClientData(string username, string client, string data) : void
+    // setUserClientData(string username, string client, string data) : Promise<void>
     // Sets the client data.  Usernames are case insensitive.
     function setUserClientData(/*username, client, data*/) {
-        throw new ApiException('ERR_SERVER', 'Not implemented.')
+        return new Promise(function(/*resolve*/) {
+            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        })
     }
 
     //TODO: unused variables for now

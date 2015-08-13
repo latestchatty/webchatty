@@ -10,6 +10,7 @@
     "express": "^4.13.2",
     "morgan": "^1.6.1",
     "compression": "^1.5.2",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "promise": "^7.0.4"
   }
 }

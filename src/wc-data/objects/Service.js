@@ -16,14 +16,15 @@
 
 'use strict'
 
-// UtcDateTime(int year, int month, int day, int hour, int minute, int second)
-function UtcDateTime(year, month, day, hour, minute, second) {
-    this.year = year
-    this.month = month
-    this.day = day
-    this.hour = hour
-    this.minute = minute
-    this.second = second
+// Service(express app, ChattyDb chattyDb, LolDb lolDB, function notifyPostChange, function notifyLolChange,
+//    function addRoute)
+function Service(app, chattyDb, lolDb, notifyPostChange, notifyLolChange, addRoute) {
+    this.chattyDb = chattyDb
+    this.lolDb = lolDb
+    this.app = app
+    this.notifyPostChange = notifyPostChange
+    this.notifyLolChange = notifyLolChange
+    this.addRoute = addRoute
 }
 
-module.exports = UtcDateTime
+module.exports = Service
