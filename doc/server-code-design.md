@@ -229,7 +229,7 @@ Property | Type | Description
 > **verifyUserCredentials(UserCredentials credentials) : Promise<UserCredentialsStatus>**   
 > Verifies the username and password, and checks whether the user is a moderator.  The username is not case sensitive.
 
-> **postComment(UserCredentials credentials, int parentId, string body)**   
+> **postComment(UserCredentials credentials, int parentId, string body) : Promise<void>**   
 > Posts a new comment.  If parentId is 0, then a new thread is made.  `body` may contain Shacktags.
 
 ___

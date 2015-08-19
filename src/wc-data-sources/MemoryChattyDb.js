@@ -184,10 +184,10 @@ function MemoryChattyDb(mMods, mUsers) {
             resolve(new wcData.UserCredentialsStatus(isValid, isMod))
         })
     }
-    
-    // **postComment(UserCredentials credentials, int parentId, string body) : Promise<void>**   
+
+    // postComment(UserCredentials credentials, int parentId, string body) : Promise<void>
     // Posts a new comment.  If parentId is 0, then a new thread is made.  `body` may contain Shacktags.
-    function postComment(credentials, parentId, body) {
+    function postComment(credentials, parentId /*, body*/) {
         verifyUserCredentials(credentials)
             .then(function(credStatus) {
                 return new Promise(function(resolve, reject) {
@@ -196,12 +196,13 @@ function MemoryChattyDb(mMods, mUsers) {
                     } else if (parentId !== 0 && !postExists(parentId)) {
                         return reject(new wcData.ApiException('ERR_ARGUMENT', 'The specified parent post does not exist.'))
                     } else {
-                        
+                        //var id = mPosts.length
+                        //var post = new wcData.Post(id, )
+                        //todo
                     }
                 })
             })
-        
-        
+
         return new Promise(function(resolve, reject) {
             var credStatus = verifyUserCredentials(credentials)
             if (credStatus.isValid !== true) {
@@ -217,7 +218,7 @@ function MemoryChattyDb(mMods, mUsers) {
 
     return new wcData.ChattyDb(attach, getPosts, getPostRange, getThreads, getUserRegistrationDates, search,
         requestReindex, setPostCategory, getUserCategoryFilters, setUserCategoryFilters, getUserMarkedPosts,
-        setUserMarkedPost, getUserClientData, setUserClientData, verifyUserCredentials)
+        setUserMarkedPost, getUserClientData, setUserClientData, verifyUserCredentials, postComment)
 }
 
 module.exports = MemoryChattyDb
