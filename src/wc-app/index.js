@@ -26,10 +26,7 @@ var Service = wcData.Service
 // the app object (accessed via the Service object).
 function registerRoutes(dir, service) {
     _.filter(common.findFilesSync(dir), function(x) { return path.extname(x) === '.js' })
-        .forEach(function(filePath) {
-            require(filePath)(service)
-            console.log('Route: /' + path.basename(path.relative(path.join(__dirname, 'routes'), filePath), '.js'))
-        })
+        .forEach(function(filePath) { require(filePath)(service) })
 }
 
 // wc-app.run(ChattyDb chattyDb, LolDb lolDb, int port) : void
@@ -43,29 +40,46 @@ exports.run = function(chattyDb, lolDb, port) {
     }))
     app.timeout = 0
 
-    // addRoute(string method, string routePath, function handler)
+    // addRoute(string method, string routePath, function argsSync, function handlerAsync)
     // method is: GET, POST
-    // handler is: function(req, res)
-    function addRoute(method, routePath, handler) {
+    // parseArgsSync is: function(req) : object
+    //      Picks and parses values from req.params and returns them in an object to be passed to the handler.
+    //      May throw parameter validation exceptions which will be caught automatically.
+    // handlerAsync is: function(args) : Promise<object>
+    //      Returns a promise for the API response.
+    function addRoute(method, routePath, parseArgsSync, handlerAsync) {
         var wrappedHandler = function(req, res) {
+            // Step 1: parse the arguments synchronously
+            var args = {}
             try {
-                handler(req, res)
+                args = parseArgsSync(req)
             } catch (ex) {
                 if (ex instanceof wcData.ApiException) {
                     res.send(ex)
                 } else {
-                    console.log('Unexpected exception while handling ' + routePath + ': ')
-                    console.log(ex)
-                    res.send(new wcData.ApiException('ERR_SERVER', 'An unexpected error occurred.'))
+                    throw ex
                 }
+                return
             }
+            // Step 2: call the handler asynchronously
+            handlerAsync(args)
+                .then(function(response) {
+                    res.send(response)
+                })
+                .catch(function(ex) {
+                    if (ex instanceof wcData.ApiException) {
+                        res.send(ex)
+                    } else {
+                        throw ex
+                    }
+                })
         }
         if (method === 'GET') {
             app.get(routePath, wrappedHandler)
         } else if (method === 'POST') {
             app.post(routePath, wrappedHandler)
         } else {
-            throw 'Unexpected method in route: ' + method
+            throw new Error('Unexpected method in route: ' + method)
         }
     }
 

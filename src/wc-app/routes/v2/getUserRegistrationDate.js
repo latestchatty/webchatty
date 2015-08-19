@@ -19,11 +19,17 @@ var wcData = require('wc-data')
 
 // route(Service service) : void
 module.exports = function(service) {
-    service.addRoute('GET', '/v2/getUserRegistrationDate', function(req, res) {
-        var usernames = wcData.getArg(req, 'username', { type: 'STR', list: true, min: 1, max: 50 })
-        service.chattyDb.getUserRegistrationDates(usernames)
-            .then(function(regDates) {
-                res.send({ users: regDates })
-            })
-    })
+    service.addRoute('GET', '/v2/getUserRegistrationDate',
+        function(req) {
+            return {
+                usernames: wcData.getArg(req, 'username', { type: 'STR', list: true, min: 1, max: 50 })
+            }
+        },
+        function(args) {
+            return service.chattyDb.getUserRegistrationDates(args.usernames)
+                .then(function(regDates) {
+                    return { users: regDates }
+                })
+        }
+    )
 }

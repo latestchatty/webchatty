@@ -32,7 +32,7 @@
     "gulp-server-livereload": "^1.4.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0",
-    "http-server": "^0.8.0"    
+    "http-server": "^0.8.0"
   },
   "devDependencies": {
     "eslint": "^0.24.0",
@@ -44,7 +44,7 @@
     "start": "./index.js",
     
     "lint": "eslint -c .eslintrc $( find . -type f -name '*.js' | grep -v node_modules/ | grep -v gulpfile | grep -v build/ | grep -v bower_components/ )",
-    "build": "npm install && npm run lint",
+    "build": "npm run lint && npm install",
     "dev": "npm run build && npm start",
     "doctoc": "ls doc/*.md | xargs -L 1 doctoc --notitle"
   },

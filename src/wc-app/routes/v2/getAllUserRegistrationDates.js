@@ -16,25 +16,17 @@
 
 'use strict'
 
-// ChattyDb(functions...)
-function ChattyDb(attach, getPosts, getPostRange, getThreads, getUserRegistrationDates, search, requestReindex,
-    setPostCategory, getUserCategoryFilters, setUserCategoryFilters, getUserMarkedPosts, setUserMarkedPost,
-    getUserClientData, setUserClientData, verifyUserCredentials) {
-    this.attach = attach
-    this.getPosts = getPosts
-    this.getPostRange = getPostRange
-    this.getThreads = getThreads
-    this.getUserRegistrationDates = getUserRegistrationDates
-    this.search = search
-    this.requestReindex = requestReindex
-    this.setPostCategory = setPostCategory
-    this.getUserCategoryFilters = getUserCategoryFilters
-    this.setUserCategoryFilters = setUserCategoryFilters
-    this.getUserMarkedPosts = getUserMarkedPosts
-    this.setUserMarkedPost = setUserMarkedPost
-    this.getUserClientData = getUserClientData
-    this.setUserClientData = setUserClientData
-    this.verifyUserCredentials = verifyUserCredentials
+// route(Service service) : void
+module.exports = function(service) {
+    service.addRoute('GET', '/v2/getAllUserRegistrationDates',
+        function(/*req*/) {
+            return {}
+        },
+        function(/*args*/) {
+            return service.chattyDb.getUserRegistrationDates([])
+                .then(function(regDates) {
+                    return { users: regDates }
+                })
+        }
+    )
 }
-
-module.exports = ChattyDb

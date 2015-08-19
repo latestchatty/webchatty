@@ -19,21 +19,17 @@ var _ = require('lodash')
 var Promise = require('promise')
 var wcData = require('wc-data')
 var common = require('wc-common')
-var ChattyDb = wcData.ChattyDb
-var ModFlag = wcData.ModFlag
-var UserRegistrationDate = wcData.UserRegistrationDate
-var ApiException = wcData.ApiException
 
 function unused() {}
 
 // MemoryChattyDb(UserCredentials[] mods, UserCredentials[] users)
 // Returns an in-memory reference implementation of ChattyDb.  There is no persistence.
-function MemoryChattyDb(mods, users) {
+function MemoryChattyDb(mMods, mUsers) {
     var mInstance = null // Service
     var mPosts = [null] // Post[], the array index is the post number. Index 0 is reserved.
     var mThreads = [] // MemThread[]
     var mStartupDate = wcData.dateTimeNow() // UtcDateTime
-    var mAllUsers = _(mods).concat(users).value() // UserCredentials[]
+    var mAllUsers = _(mMods).concat(mUsers).value() // UserCredentials[]
 
     // MemThread(int id, UtcDateTime date, UtcDateTime bumpDate)
     function MemThread(id, date, bumpDate) {
@@ -44,7 +40,7 @@ function MemoryChattyDb(mods, users) {
 
     // postExists(int postId) : bool
     function postExists(postId) {
-        return postId > 0 && postId < mPosts.length && mPosts[postId].category !== ModFlag.NUKED
+        return postId > 0 && postId < mPosts.length && mPosts[postId].category !== wcData.ModFlag.NUKED
     }
 
     // containingThreadId(int postId) : int?
@@ -107,9 +103,8 @@ function MemoryChattyDb(mods, users) {
             }
             resolve(_(usernames)
                 .filter(function(x) { return _.includes(allLowercaseUsernames, x.toLowerCase()) })
-                .map(function(x) { return new UserRegistrationDate(x, mStartupDate) })
+                .map(function(x) { return new wcData.UserRegistrationDate(x, mStartupDate) })
                 .value())
-            console.log('ok')
         })
     }
 
@@ -119,7 +114,7 @@ function MemoryChattyDb(mods, users) {
     // Searches are case insensitive.
     function search(/*terms, author, parentAuthor, category, offset, limit, oldestFirst*/) {
         return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
+            throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
         })
     }
 
@@ -132,70 +127,97 @@ function MemoryChattyDb(mods, users) {
         })
     }
 
-    // setPostCategory(string username, string password, int postId, ModFlag category) : Promise<void>
+    // setPostCategory(UserCredentials credentials, int postId, ModFlag category) : Promise<void>
     // Instructs the database to moderate a particular post.  The user must be a moderator.  ApiException is
     // thrown if the user is not a moderator.
     function setPostCategory(/*username, password, postId, category*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
-        })
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // getUserCategoryFilters(string username) : Promise<UserCategoryFilters>
     // Gets the user's moderation flag filter settings.  Usernames are case insensitive.
     function getUserCategoryFilters(/*username*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
-        })
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // setUserCategoryFilters(string username, UserCategoryFilters filters) : Promise<void>
     // Sets the user's moderation flag filter settings.  Usernames are case insensitive.
     function setUserCategoryFilters(/*username, filters*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
-        })
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // getUserMarkedPosts(string username) : Promise<UserMarkedPost[]>
     // Gets the most recent N marked posts, where N is decided by the ChattyDb.  Usernames are case insensitive.
     function getUserMarkedPosts(/*username*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
-        })
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // setUserMarkedPost(string username, int postId, MarkedPostType type) : Promise<void>
     // Marks or unmarks a post.  If `postId` is -1, then all posts are unmarked.  Usernames are case insensitive.
     function setUserMarkedPost(/*username, postId, type*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
-        })
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // getUserClientData(string username, string client) : Promise<string>
     // Gets the client data.  Returns "" if there is no client data.  Usernames are case insensitive.
     function getUserClientData(/*username, client*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
-        })
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
     }
 
     // setUserClientData(string username, string client, string data) : Promise<void>
     // Sets the client data.  Usernames are case insensitive.
     function setUserClientData(/*username, client, data*/) {
-        return new Promise(function(/*resolve*/) {
-            throw new ApiException('ERR_SERVER', 'Not implemented.')
+        throw new wcData.ApiException('ERR_SERVER', 'Not implemented.')
+    }
+
+    // verifyUserCredentials(UserCredentials credentials) : Promise<UserCredentialsStatus>
+    // Verifies the username and password, and checks whether the user is a moderator.  The username is not case sensitive.
+    function verifyUserCredentials(credentials) {
+        return new Promise(function(resolve) {
+            var lowerUser = credentials.username.toLowerCase()
+            var isValid = _.some(mAllUsers, function(x) {
+                return x.username.toLowerCase() === lowerUser && x.password === credentials.password
+            })
+            var isMod = _.some(mMods, function(x) {
+                return x.username.toLowerCase() === lowerUser
+            })
+            resolve(new wcData.UserCredentialsStatus(isValid, isMod))
+        })
+    }
+    
+    // **postComment(UserCredentials credentials, int parentId, string body) : Promise<void>**   
+    // Posts a new comment.  If parentId is 0, then a new thread is made.  `body` may contain Shacktags.
+    function postComment(credentials, parentId, body) {
+        verifyUserCredentials(credentials)
+            .then(function(credStatus) {
+                return new Promise(function(resolve, reject) {
+                    if (!credStatus.isValid) {
+                        return reject(new wcData.ApiException('ERR_INVALID_LOGIN', 'Invalid credentials.'))
+                    } else if (parentId !== 0 && !postExists(parentId)) {
+                        return reject(new wcData.ApiException('ERR_ARGUMENT', 'The specified parent post does not exist.'))
+                    } else {
+                        
+                    }
+                })
+            })
+        
+        
+        return new Promise(function(resolve, reject) {
+            var credStatus = verifyUserCredentials(credentials)
+            if (credStatus.isValid !== true) {
+                return reject(new wcData.ApiException('ERR_INVALID_LOGIN', 'Invalid credentials.'))
+            }
+            // todo: ERR_POST_RATE_LIMIT
+            // todo: ERR_BANNED
         })
     }
 
     //TODO: unused variables for now
     unused(mInstance, mThreads, MemThread)
 
-
-    return new ChattyDb(attach, getPosts, getPostRange, getThreads, getUserRegistrationDates, search, requestReindex,
-        setPostCategory, getUserCategoryFilters, setUserCategoryFilters, getUserMarkedPosts, setUserMarkedPost,
-        getUserClientData, setUserClientData)
+    return new wcData.ChattyDb(attach, getPosts, getPostRange, getThreads, getUserRegistrationDates, search,
+        requestReindex, setPostCategory, getUserCategoryFilters, setUserCategoryFilters, getUserMarkedPosts,
+        setUserMarkedPost, getUserClientData, setUserClientData, verifyUserCredentials)
 }
 
 module.exports = MemoryChattyDb

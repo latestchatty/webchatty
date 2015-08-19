@@ -180,6 +180,8 @@ Property | Type | Description
 `setUserMarkedPost` | function | Callback function
 `getUserClientData` | function | Callback function
 `setUserClientData` | function | Callback function
+`verifyUserCredentials` | function | Callback function
+`postComment` | function | Callback function
 
 > **attach(Service instance) : Promise<void>**   
 > This is called by the engine when it first starts up.  The ChattyDb hangs onto the Service reference which it will use later to notify the engine of post updates.
@@ -203,7 +205,7 @@ Property | Type | Description
 > **requestReindex(int postId) : Promise<void>**   
 >  Instructs the database to reindex a particular post.  If such an operation is not applicable for a particular backend, it can do nothing in response.
 
-> **setPostCategory(string username, string password, int postId, ModFlag category) : Promise<void>**   
+> **setPostCategory(UserCredentials credentials, int postId, ModFlag category) : Promise<void>**   
 > Instructs the database to moderate a particular post.  The user must be a moderator.  ApiException is thrown if the user is not a moderator.  Usernames are case insensitive.
 
 > **getUserCategoryFilters(string username) : Promise<UserCategoryFilters>**   
@@ -223,6 +225,12 @@ Property | Type | Description
 
 > **setUserClientData(string username, string client, string data) : Promise<void>**   
 > Sets the client data.  Usernames are case insensitive.
+
+> **verifyUserCredentials(UserCredentials credentials) : Promise<UserCredentialsStatus>**   
+> Verifies the username and password, and checks whether the user is a moderator.  The username is not case sensitive.
+
+> **postComment(UserCredentials credentials, int parentId, string body)**   
+> Posts a new comment.  If parentId is 0, then a new thread is made.  `body` may contain Shacktags.
 
 ___
 ### LolDb object
