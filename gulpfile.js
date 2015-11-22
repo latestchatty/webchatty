@@ -38,7 +38,8 @@ var paths = {
         ],
         backend: [
             './src/backend/**'
-        ]
+        ],
+        backendTypings: './typings/**/*.d.ts'
     },
     dist: {
         root: './build-frontend',
@@ -47,6 +48,7 @@ var paths = {
     },
     distBackend: {
         root: './build-backend',
+        typings: './build-backend/typings'
     }
 }
 
@@ -105,10 +107,14 @@ var backendProject = typescript.createProject('tsconfig.json', {
     typescript: require('typescript')
 })
 gulp.task('build-backend', function() {
+    gulp.src(paths.src.backendTypings)
+        .pipe(changed(paths.distBackend.typings, {hasChanged: changed.compareSha1Digest}))
+        .pipe(gulp.dest(paths.distBackend.typings))
+    
     var tsResult = backendProject.src().pipe(typescript(backendProject))
     return merge([tsResult.js, tsResult.dts])
         .pipe(changed(paths.distBackend.root, {hasChanged: changed.compareSha1Digest}))
-        .pipe(gulp.dest(paths.distBackend.root));
+        .pipe(gulp.dest(paths.distBackend.root))
 })
 
 // rerun the task when a file changes

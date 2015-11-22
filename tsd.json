@@ -31,6 +31,9 @@
     },
     "mysql/mysql.d.ts": {
       "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
+    },
+    "es6-promise/es6-promise.d.ts": {
+      "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
     }
   }
 }

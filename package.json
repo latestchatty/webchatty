@@ -4,22 +4,26 @@
     "license": "MIT",
     "version": "0.0.1",
     "description": "Web-based threaded forum software.",
-    "main": "./build-backend/src/backend/index.js",
-    "typings": "./build-backend/src/backend/index.d.ts",
+    "main": "./build-backend/src/backend/webchatty.js",
+    "typings": "./build-backend/src/backend/webchatty.d.ts",
     "repository": {
         "type": "git",
         "url": "git://github.com/webchatty/webchatty.git"
     },
     "dependencies": {
-        "typescript": "^1.6.2",
-        "tsd": "^0.6.5",
         "express": "^4.13.2",
         "morgan": "^1.6.1",
         "compression": "^1.5.2",
         "lodash": "^3.10.1",
-        "promise": "^7.0.4",
+        "es6-promise": "^3.0.2",
         "pg": "^4.4.1",
-        "mysql": "^2.8.0",
+        "mysql": "^2.8.0"
+    },
+    "devDependencies": {
+        "typescript": "^1.6.2",
+        "tsd": "^0.6.5",
+        "eslint": "^0.24.0",
+        "doctoc": "^0.14.2",
         "bower": "^1.4.1",
         "del": "^1.2.0",
         "merge2": "^0.3.6",
@@ -35,15 +39,11 @@
         "gulp-sourcemaps": "^1.5.2",
         "gulp-uglify": "^1.2.0",
         "gulp-typescript": "^2.9.2",
-        "http-server": "^0.8.0"
-    },
-    "devDependencies": {
-        "eslint": "^0.24.0",
-        "doctoc": "^0.14.2"
+        "http-server": "^0.8.0"        
     },
     "scripts": {
         "prepublish": "bower install && tsd install && gulp build",
-        "start": "node ./build-backend/src/backend/index.js",
+        "start": "node --harmony ./build-backend/src/backend/run_test_server.js",
         "clean": "gulp clean",
         "watch": "gulp watch",
         "frontend-dev-server": "gulp server",

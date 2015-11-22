@@ -16,4 +16,9 @@
 
 /// <reference path="../../typings/tsd.d.ts" />
 
-console.log('hello!');
+import * as webchatty from "./webchatty";
+
+// This runs the WebChatty server with all default settings and an in-memory database.
+// It's useful for development, and this file serves as an example for how the webchatty package is used.
+
+webchatty.runServer();

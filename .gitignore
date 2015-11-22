@@ -4,6 +4,6 @@ build-backend/
 build-frontend/
 coverage
 .idea
-.c9/*
+.c9/
 typings/
 npm-debug.log
