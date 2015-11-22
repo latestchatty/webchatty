@@ -68,7 +68,15 @@ export class Server {
 
     public addRoute(method: RequestMethod, path: string, handler: (req: express.Request) => Promise<any>): void {
         var expressHandler: express.RequestHandler = (req, res) => {
-            handler(req)
+            var handlerPromise: Promise<any>;
+            
+            try {
+                handlerPromise = handler(req);
+            } catch (ex) {
+                handlerPromise = Promise.reject(ex);
+            }
+            
+            handlerPromise
                 .then(resData => {
                     res.send(resData); 
                 })

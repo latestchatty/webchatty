@@ -29,7 +29,7 @@ export class QueryParser {
     
     public getString(name: string, minLength?: number, maxLength?: number): string {
         if (typeof minLength === "undefined") {
-            minLength = 0;
+            minLength = 1;
         }
         if (typeof maxLength === "undefined") {
             maxLength = 2147483647;
@@ -37,16 +37,54 @@ export class QueryParser {
         
         if (this.has(name)) {
             var value = this.get(name);
-            if (value.length === 0) {
-                throw spec.apiError("ERR_ARGUMENT", util.format("Missing argument \"%s\".", name));
-            } else if (value.length < minLength) {
+            if (value.length < minLength) {
                 throw spec.apiError("ERR_ARGUMENT", util.format(
-                    "The value for parameter \"%s\" must be at least %d characters long.", name, minLength));
+                    "The value for parameter \"%s\" must be at least %d character(s) long.", name, minLength));
             } else if (value.length > maxLength) {
                 throw spec.apiError("ERR_ARGUMENT", util.format(
-                    "The value for parameter \"%s\" must be at most %d characters long.", name, maxLength)); 
+                    "The value for parameter \"%s\" must be at most %d character(s) long.", name, maxLength)); 
             }
             return value;
+        } else {
+            throw spec.apiError("ERR_ARGUMENT", "Missing argument \"" + name + "\"");
+        }
+    }
+    
+    public getStringList(name: string, minListCount?: number, maxListCount?: number, minStringLength?: number, 
+            maxStringLength?: number): string[] {
+        if (typeof minListCount === "undefined") {
+            minListCount = 1;
+        }
+        if (typeof maxListCount === "undefined") {
+            maxListCount = 2147483647;
+        }
+        if (typeof minStringLength === "undefined") {
+            minStringLength = 1;
+        }
+        if (typeof maxStringLength === "undefined") {
+            maxStringLength = 2147483647;
+        }
+        
+        if (this.has(name)) {
+            var list = this.get(name).split(",");
+            
+            if (list.length < minListCount) {
+                throw spec.apiError("ERR_ARGUMENT", util.format(
+                    "The comma-separated list \"%s\" must have at least %d item(s).", name, minListCount));
+            } else if (list.length > maxListCount) {
+                throw spec.apiError("ERR_ARGUMENT", util.format(
+                    "The comma-separated list \"%s\" must have at most  %d item(s).", name, maxListCount));
+            }
+            
+            if (!list.every(x => x.length >= minStringLength)) {
+                throw spec.apiError("ERR_ARGUMENT", util.format(
+                    "Each item in the comma-separated list \"%s\" must be at least %d character(s) long.", name, minStringLength));
+            } else if (!list.every(x => x.length <= maxStringLength)) {
+                throw spec.apiError("ERR_ARGUMENT", util.format(
+                    "Each item in the comma-separated list \"%s\" must be at most %d character(s) long.", name, maxStringLength));
+            }
+            
+            return list;
         } else {
             throw spec.apiError("ERR_ARGUMENT", "Missing argument \"" + name + "\"");
         }

@@ -14,8 +14,18 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 
-export * from "./formatUtcDate";
-export * from "./Server";
-export * from "./QueryParser";
+import * as api from "../../index";
+import * as spec from "../../../spec/index";
+
+module.exports = function(server: api.Server) {
+    server.addRoute(api.RequestMethod.Get, "/v2/getAllUserRegistrationDates", req => {
+        return server.accountConnector.getUserRegistrationDates()
+            .then(dict => {
+                return Promise.resolve({
+                    users: dict.pairs().map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
+                });
+            });
+    });
+};

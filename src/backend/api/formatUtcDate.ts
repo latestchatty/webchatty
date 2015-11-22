@@ -16,6 +16,7 @@
 
 /// <reference path="../../../typings/tsd.d.ts" />
 
-export * from "./formatUtcDate";
-export * from "./Server";
-export * from "./QueryParser";
+export function formatUtcDate(date: Date): string {
+    // "2011-10-05T14:48:00.000Z" --> "2011-10-05T14:48:00Z"
+    return date.toISOString().substr(0, 19) + "Z";
+}

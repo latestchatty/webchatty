@@ -12,7 +12,6 @@
     - [Response-only types](#response-only-types)
   - [Error Responses](#error-responses)
   - [Client Implementation Guide](#client-implementation-guide)
-  - [Security and Privacy Disclosures](#security-and-privacy-disclosures)
 - [Threads](#threads)
   - [GET /v2/getChatty](#get-v2getchatty)
   - [GET /v2/getChattyRootPosts](#get-v2getchattyrootposts)
@@ -41,7 +40,7 @@
   - [GET /v2/getUserRegistrationDate](#get-v2getuserregistrationdate)
   - [GET /v2/getAllUserRegistrationDates](#get-v2getalluserregistrationdates)
   - [GET /v2/getAllTenYearUsers](#get-v2getalltenyearusers)
-- [Shackmessages](#shackmessages)
+- [Messages](#messages)
   - [POST /v2/getMessages](#post-v2getmessages)
   - [POST /v2/getMessageCount](#post-v2getmessagecount)
   - [POST /v2/sendMessage](#post-v2sendmessage)
@@ -250,7 +249,7 @@ The documentation for each API call lists which error codes are possible.  The f
 
 Error code | Description
 --- | ---
-`ERR_SERVER` | Unexpected error.  Could be a communications failure, Shacknews outage, exception, etc.  The client did not do anything wrong.
+`ERR_SERVER` | Unexpected error.  Could be a communications failure, server outage, exception, etc.  The client did not do anything wrong.
 `ERR_ARGUMENT` | Invalid argument.  The client passed an argument value that violates a documented constraint.  The client contains a bug.
 
 ### Client Implementation Guide
@@ -260,7 +259,7 @@ At application startup:
 - Call [/v2/clientData/](#client-data) methods to retrieve the user's client settings, if your client supports cloud synchronization of its settings.
 - Call [/v2/getNewestEventId](#get-v2getnewesteventid) and save the event ID.  This ID will be continually updated as new events arrive.
 - Call [/v2/getChatty](#get-v2getchatty) to bootstrap your local copy of the chatty, including all active threads.
-- If your client shows lightning bolts for 10-year users, then call [/v2/getAllUserRegistrationDates](#get-v2getalluserregistrationdates) to bootstrap your list of registration dates.  If you encounter a username that isn't in your list, then call [/v2/getUserRegistrationDate](#get-v2getuserregistrationdate).  For some usernames (specifically, usernames containing punctuation characters), this will fail.  This is a shortcoming of Shacknews itself.
+- If your client shows lightning bolts for 10-year users, then call [/v2/getAllUserRegistrationDates](#get-v2getalluserregistrationdates) to bootstrap your list of registration dates.  If you encounter a username that isn't in your list, then call [/v2/getUserRegistrationDate](#get-v2getuserregistrationdate).  For some usernames (specifically, usernames containing punctuation characters), this may fail.
 
 In a loop running until the application exits:
 - *For desktop clients and other "unlimited energy/bandwidth/processor" scenarios:*   
@@ -279,34 +278,15 @@ When the user changes a client option:
 - If the username and password were changed, called [/v2/verifyCredentials](#post-v2verifycredentials) to ensure the login information is valid.
 - Call [/v2/clientData/](#client-data) methods to save the updated client options.
 
-### Security and Privacy Disclosures
-This section makes a serious effort to spell out the security and privacy implications of this API and its use in chatty clients.  Primarily this relates to user's passwords (a security issue) and shackmessages (a privacy issue).
-
-You have my word that the following statement is true:
-
-- All of the source code running on winchatty.com matches the publicly available code on GitHub.  This is the only statement that you must accept on faith, because there is no way for you to verify it.  In principle I could run any malicious code I wanted on the server, while committing a "cleaned-up" version to GitHub, and you'd never know it.  The following statements are also true, and you may verify them yourself by inspecting the code on GitHub.
-
-- User passwords are never stored on disk in any form.
-
-- Unencrypted user passwords are temporarily stored in the server's RAM while generating a response.
-
-- Shackmessages are never stored on disk in any form.
-
-- Unencrypted Shackmessages are temporarily stored in the server's RAM while generating a response.
-
-- User passwords are never used for any purpose other than responding to explicit client requests.
-
-- All API calls are logged, with originating IP address and GET arguments (standard Apache logs).
-
 ## Threads
 These API calls relate to the chatty itself.   These are the core of the v2 API.
 
 ### GET /v2/getChatty
-Gets the list of recently bumped threads, starting with the most recently bumped.  Only "active" threads (i.e. threads that have not expired) are included.  Thus this essentially grabs the entire chatty, as seen from the Shacknews website.  The full threads are returned.  You should call this method to bootstrap your application's local copy of the chatty, and then use [/v2/waitForEvent](#get-v2waitforevent) to keep it up to date.
+Gets the list of recently bumped threads, starting with the most recently bumped.  Only "active" threads (i.e. threads that have not expired) are included.  Thus this essentially grabs the entire chatty.  The full threads are returned.  You should call this method to bootstrap your application's local copy of the chatty, and then use [/v2/waitForEvent](#get-v2waitforevent) to keep it up to date.
 
 Parameters:
 - `count=[INT?]` - The number of threads to return.  If not specified, then all active (not expired) threads are returned.
-- `expiration=[INT?,36]` - The number of hours to keep threads around in this list.  If not provided, then the default of 18 (to match Shacknews) is used.  The maximum is 36 hours.
+- `expiration=[INT?,36]` - The number of hours to keep threads around in this list.  If not provided, then the default of 18 is used.  The maximum is 36 hours.
 
 Response:
 ```
@@ -524,8 +504,8 @@ Response:
 Posts a new comment.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 - `parentId=[INT]` - The ID of the post we're replying to, or 0 for a new thread.
 - `text=[STR]` - The body of the post.
 
@@ -580,8 +560,8 @@ Response
 For moderators, sets the category (moderation flag) of a post.  This automatically triggers a reindex of the post; you do not need to call requestReindex afterwards.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 - `postId=[INT]` - Post ID.
 - `category=[MODN]` - Moderation flag (possibly nuked).
 
@@ -682,7 +662,7 @@ Errors:
 - `ERR_INVALID_LOGIN`
 
 ## Users
-These API calls pertain to Shacknews user accounts.
+These API calls pertain to user accounts.
 
 ### GET /v2/checkConnection
 Checks to ensure the client is using GZIP and SSL.  An error is returned if GZIP compression or SSL encryption are not being correctly used.
@@ -705,8 +685,8 @@ Errors:
 Checks the validity of the given username and password.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 
 Response:
 ```
@@ -720,7 +700,7 @@ Response:
 Gets the registration date for one or more users.  If a username does not exist or the user does not have a registration date available, then the user is silently omitted from the result array.
 
 Parameters:
-- `username=[STR+,50]` - List of Shacknews usernames.
+- `username=[STR+,50]` - List of Usernames.
 
 Response:
 ```
@@ -757,7 +737,7 @@ Response:
 ```
 
 ### GET /v2/getAllTenYearUsers
-Gets a bulk list of all users who have been on Shacknews for more than ten years.  On the site, these users are shown with a lightning bolt.  Some users with lightning bolts may be missing from the list, as the Shack API has an issue with usernames with punctuation characters.
+Gets a bulk list of all users who have been on the site for more than ten years.  On the site, these users are shown with a lightning bolt.  This is not guaranteed to be a fully comprehensive list (to give the implementation some wiggle room).
 
 Parameters:
 - None.
@@ -773,15 +753,14 @@ Response:
 }
 ```
 
-## Shackmessages
-The Shackmessage calls go directly to shacknews.com, as they did in the v1 API.  Shackmessages are not stored in the WinChatty database to ensure user privacy is maintained.
+## Messages
 
 ### POST /v2/getMessages
 Gets a page of messages in the user’s inbox or sent mailbox. 
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 - `folder=[MBX]` - The mailbox folder.
 - `page=[INT]` - 1-based page number.
 
@@ -814,8 +793,8 @@ Errors:
 Gets the total number of messages in the user's inbox as well as the number of unread messages on the first page.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 
 Response:
 ```
@@ -829,11 +808,11 @@ Errors:
 - `ERR_INVALID_LOGIN`
 
 ### POST /v2/sendMessage
-Sends a Shackmessage.
+Sends a message.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 - `to=[STR]` - Message recipient's username.
 - `subject=[STR]` - Subject line.
 - `body=[STR]` - Post body.
@@ -852,8 +831,8 @@ Errors:
 Marks a message as read.  If the message does not exist, then the method returns successfully without doing anything.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 - `messageId=[INT]` - Message ID.
 
 Response:
@@ -870,8 +849,8 @@ Errors:
 Deletes a message.  If the message does not exist, then the method returns successfully without doing anything.
 
 Parameters:
-- `username=[STR]` - Shacknews username.
-- `password=[STR]` - Shacknews password.
+- `username=[STR]` - Username.
+- `password=[STR]` - Password.
 - `messageId=[INT]` - Message ID.
 - `folder=[MBX]` - "inbox" or "sent"
 
@@ -897,7 +876,7 @@ Access to client data requires only a username.  Don't store secrets in the clie
 Gets the user's moderation flag filters.  A value of true indicates that posts in that category are shown.
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 
 Response:
 ```
@@ -917,7 +896,7 @@ Response:
 Sets the user's moderation flag filters.  A value of true indicates that posts in that category are shown.
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 - `nws=[BIT]` - Not work safe filter.
 - `stupid=[BIT]` - Stupid filter.
 - `political=[BIT]` - Political/religious filter.
@@ -935,7 +914,7 @@ Response:
 Gets all the user's marked posts (pinned or collapsed).
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 
 Response:
 ```
@@ -955,7 +934,7 @@ Response:
 Clears the user's marked posts.
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 
 Response:
 ```
@@ -968,7 +947,7 @@ Response:
 Marks a post as unmarked, pinned, or collapsed.  The default for a regular post is unmarked.
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 - `postId=[INT]` - Post ID.
 - `type=[MPT]` - Mark type.
 
@@ -986,7 +965,7 @@ Errors:
 Gets the client-specified data for the specified user.  This is just a blob of text that can be anything the client wants to store on the server (e.g. user preferences).  This data is specific to a particular client so that one client's data does not interfere with another client's data for the same user.
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 - `client=[STR,50]` - The unique name of this client.  This is chosen by the client author.  It is not displayed anywhere; it is only used to distinguish one client's data from another.  Recommended strings are something short and descriptive, without a version number.  Examples: "lamp", "chromeshack", etc.
 
 Response:
@@ -1000,7 +979,7 @@ Response:
 Sets the private client data for the specified user.  This is just a blob of text that can be anything the client wants to store on the server (e.g. user preferences).  This data is specific to a particular client so that one client's data does not interfere with another client's data for the same user.  Beware: anyone can access this data with just a username.  Do not store secret or private information without encrypting it.
 
 Parameters:
-- `username=[STR,50]` - Shacknews username.
+- `username=[STR,50]` - Username.
 - `client=[STR,50]` - The unique name of this client.  This is chosen by the client author.  It is not displayed anywhere; it is only used to distinguish one client's data from another.  Recommended strings are something short and descriptive, without a version number.  Examples: "lamp", "chromeshack", etc.
 - `data=[STR,100000]` - Client-specified data.  I recommend Base64-encoding this data.  Maximum: 100,000 bytes.
 
@@ -1049,7 +1028,7 @@ Response:
 ### POST /v2/notifications/registerNotifierClient
 Registers a brand new installation of a simple notifier client.  This only needs to be done once.  The  notifier app must generate a GUID to use as its ID.  This GUID will uniquely identify this installation of the application and is how the notification server identifies recipients.  If the client is already registered, then no action is taken and success is returned.  This allows very simple clients to register themselves at every launch.  (Just remember to save that GUID somewhere safe on the computer so each launch can use the same GUID.)
 
-After the client has been registered, it needs to be attached to a Shacknews account.  When using this method to register the client, the client must open the web browser to the following URL to present the user with an attachment and setup interface:
+After the client has been registered, it needs to be attached to a site account.  When using this method to register the client, the client must open the web browser to the following URL to present the user with an attachment and setup interface:
 
 https://winchatty.com/v2/notifications/ui/login?clientId={0}
 
@@ -1069,7 +1048,7 @@ Response:
 ### POST /v2/notifications/registerRichClient
 Registers a brand new installation of a rich notifier client.  This only needs to be done once.  If the user logs into a different account, this call may be re-issued to reattach the client to the new account.  It is not necessary to call detachAccount first in that scenario.
 
-After the client is registered, it is immediately attached to the given Shacknews account.  Desktop clients may begin calling waitForNotification to listen for notifications as soon as this call returns.  Mobile clients will begin receiving push notifications.
+After the client is registered, it is immediately attached to the given site account.  Desktop clients may begin calling waitForNotification to listen for notifications as soon as this call returns.  Mobile clients will begin receiving push notifications.
 
 Parameters:
 - `id=[STR]` - 36-character GUID, generated fresh by the client.  The client must use this GUID every time it interacts with the notifications API, otherwise it will be seen as a separate client installation.
@@ -1088,7 +1067,7 @@ Errors:
 - `ERR_INVALID_LOGIN`
 
 ### POST /v2/notifications/detachAccount
-Detaches the client from the given Shacknews account.  The client will no longer receive notifications for this user.
+Detaches the client from the given site account.  The client will no longer receive notifications for this user.
 
 Parameters:
 - `clientId=[STR]` - Client GUID.
@@ -1335,7 +1314,7 @@ Response:
 **Deprecated.** Same as /v1/stories/`[INT]`.json.  The second number in the URL is ignored.
 
 ### POST /v1/messages.json
-**Deprecated.** Gets the first page of the user's Shackmessage inbox.  Username and password are passed via HTTP basic authentication.
+**Deprecated.** Gets the first page of the user's inbox.  Username and password are passed via HTTP basic authentication.
 
 Response:
 ```
@@ -1375,7 +1354,7 @@ error_mark_failed
 ```
 
 ### POST /v1/messages/send/
-**Deprecated.** Sends a Shackmessage.  Username and password are passed via HTTP basic authentication.
+**Deprecated.** Sends a message.  Username and password are passed via HTTP basic authentication.
 
 Parameters:
 - `to=[STR]` - Recipient username

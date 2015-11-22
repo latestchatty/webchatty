@@ -17,37 +17,54 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 
 import * as spec from "../spec/index";
-import * as collections from "../collections/index";
+import { Dictionary } from "../collections/index";
 
+// used to configure the in-memory list of users
 export class MemoryUserAccount {
     username: string;
     password: string;
+    registrationDate: Date;
     level: spec.UserAccessLevel;
     
-    constructor(username: string, password: string, level: spec.UserAccessLevel) {
+    constructor(username: string, password: string, level: spec.UserAccessLevel, registrationDate: Date) {
         this.username = username;
         this.password = password;
         this.level = level;
+        this.registrationDate = registrationDate;
     }
 }
 
 export class MemoryAccountConnector implements spec.IAccountConnector {
-    private accounts: collections.Dictionary<string, MemoryUserAccount>;
+    private _accounts: Dictionary<string, MemoryUserAccount>;
     
     constructor(initialAccounts: MemoryUserAccount[]) {
-        this.accounts = collections.Dictionary.fromArray(initialAccounts, x => x.username, x => x);
+        this._accounts = Dictionary.fromArray(initialAccounts, x => x.username, x => x);
     }
     
     public tryLogin(username: string, password: string): Promise<spec.UserCredentials> {
-        return new Promise<spec.UserCredentials>((resolve, reject) => {
-            var account = this.accounts.lookup(username, null);
-            if (account === null) {
-                resolve(null); // wrong username
-            } else if (account.password === password) {
-                resolve(new spec.UserCredentials(username, account.level));
-            } else {
-                resolve(null); // wrong password
+        var account = this._accounts.lookup(username, null);
+        if (account === null) {
+            return Promise.resolve(null); // wrong username
+        } else if (account.password === password) {
+            return Promise.resolve(new spec.UserCredentials(username, account.level));
+        } else {
+            return Promise.resolve(null); // wrong password
+        }
+    }
+    
+    public getUserRegistrationDates(usernames?: string[]): Promise<Dictionary<string, Date>> {
+        if (typeof usernames === "undefined") {
+            return Promise.resolve(Dictionary.fromArray(this._accounts.values(), x => x.username, x => x.registrationDate));
+        } else {
+            var dict = new Dictionary<string, Date>();
+            for (var i = 0; i < usernames.length; i++) {
+                var username = usernames[i];
+                var account = this._accounts.lookup(username, null);
+                if (account !== null) {
+                    dict.set(username, account.registrationDate);
+                }
             }
-        });
+            return Promise.resolve(dict);
+        }
     }
 }

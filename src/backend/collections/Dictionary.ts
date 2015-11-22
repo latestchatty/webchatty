@@ -117,7 +117,7 @@ export class Dictionary<TKey, TValue> {
         return Object.keys(this.items).map(x => this.items[x]);
     }
     
-    public pairs() : KeyValuePair<TKey, TValue>[] {
+    public pairs(): KeyValuePair<TKey, TValue>[] {
         return Object.keys(this.items).map(x => new KeyValuePair(<TKey>JSON.parse(x), this.items[x]));
     }
 }

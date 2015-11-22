@@ -24,8 +24,11 @@ import * as webchatty from "./webchatty";
 webchatty.runServer({
     httpPort: 8080,
     accountConnector: new webchatty.MemoryAccountConnector([
-        new webchatty.MemoryUserAccount("testuser", "userpass", webchatty.UserAccessLevel.User),
-        new webchatty.MemoryUserAccount("testmod", "modpass", webchatty.UserAccessLevel.Moderator),
-        new webchatty.MemoryUserAccount("testadmin", "adminpass", webchatty.UserAccessLevel.Administrator)
+        new webchatty.MemoryUserAccount(
+            "testuser", "userpass", webchatty.UserAccessLevel.User,  new Date("2014-02-03T11:15:00Z")),
+        new webchatty.MemoryUserAccount(
+            "testmod", "modpass", webchatty.UserAccessLevel.Moderator, new Date("2014-01-02T23:00:00Z")),
+        new webchatty.MemoryUserAccount(
+            "testadmin", "adminpass", webchatty.UserAccessLevel.Administrator, new Date("2004-01-01T15:30:11Z"))
     ])
 });
