@@ -14,11 +14,29 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 
-import * as webchatty from "./webchatty";
+import * as api from "../../index";
+import * as spec from "../../../spec/index";
 
-// This runs the WebChatty server with all default settings and an in-memory database.
-// It's useful for development, and this file serves as an example for how the webchatty package is used.
-
-webchatty.runServer();
+module.exports = function(server: api.Server) {
+    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", (req) => {
+        var query = new api.QueryParser(req);
+        var username = query.getString("username");
+        var password = query.getString("password");
+        return server.accountConnector.tryLogin(username, password)
+            .then(userCredentials => {
+                if (userCredentials === null) {
+                    return {
+                        isValid: false,
+                        isModerator: false
+                    };
+                } else {
+                    return {
+                        isValid: true,
+                        isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
+                    };
+                }
+            });
+    });
+};

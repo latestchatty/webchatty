@@ -14,9 +14,30 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../../../typings/tsd.d.ts" />
 
-export * from "./api/index";
-export * from "./collections/index";
-export * from "./connectors/index";
-export * from "./spec/index";
+import * as spec from "./index";
+
+export interface IAccountConnector {
+    // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem
+    // occurs other than the username/password being wrong.
+    tryLogin(username: string, password: string): Promise<spec.UserCredentials>;
+}
+
+// in order of increasing access.  each access level has all the permissions of the levels lower than it
+export enum UserAccessLevel {
+    User = 0,
+    Moderator = 1,
+    Administrator = 2
+}
+
+// this object is only produced as the result of a successful login
+export class UserCredentials {
+    username: string;
+    level: spec.UserAccessLevel;
+    
+    constructor(username: string, level: spec.UserAccessLevel) {
+        this.username = username;
+        this.level = level;
+    }
+}

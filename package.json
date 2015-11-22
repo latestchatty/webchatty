@@ -17,7 +17,8 @@
         "lodash": "^3.10.1",
         "es6-promise": "^3.0.2",
         "pg": "^4.4.1",
-        "mysql": "^2.8.0"
+        "mysql": "^2.8.0",
+        "body-parser": "^1.14.1"
     },
     "devDependencies": {
         "typescript": "^1.6.2",
@@ -43,7 +44,7 @@
     },
     "scripts": {
         "prepublish": "bower install && tsd install && gulp build",
-        "start": "node --harmony ./build-backend/src/backend/run_test_server.js",
+        "start": "node ./build-backend/src/backend/runTestServer",
         "clean": "gulp clean",
         "watch": "gulp watch",
         "frontend-dev-server": "gulp server",

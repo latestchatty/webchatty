@@ -16,14 +16,5 @@
 
 /// <reference path="../../../typings/tsd.d.ts" />
 
-import { ModerationFlag } from './ModerationFlag.ts';
-
-export class Post {
-    id : number;
-    threadId : number;
-    parentId : number;
-    author : string;
-    category : ModerationFlag; 
-    date : Date;
-    body : string;
-}
+export * from "./Server";
+export * from "./QueryParser";

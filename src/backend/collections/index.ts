@@ -16,12 +16,4 @@
 
 /// <reference path="../../../typings/tsd.d.ts" />
 
-export enum ModerationFlag {
-    OnTopic,
-    NotWorkSafe,
-    Stupid,
-    PoliticalReligious,
-    Tangent,
-    Informative,
-    Nuked
-}
+export * from "./Dictionary";

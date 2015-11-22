@@ -14,7 +14,18 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../typings/tsd.d.ts" />
 
-export * from "./ModerationFlag";
-export * from "./Post";
+import * as webchatty from "./webchatty";
+
+// This runs the WebChatty server with dummy settings and an in-memory database.
+// It's useful for development, and this file serves as an example for how the webchatty server is invoked.
+
+webchatty.runServer({
+    httpPort: 8080,
+    accountConnector: new webchatty.MemoryAccountConnector([
+        new webchatty.MemoryUserAccount("testuser", "userpass", webchatty.UserAccessLevel.User),
+        new webchatty.MemoryUserAccount("testmod", "modpass", webchatty.UserAccessLevel.Moderator),
+        new webchatty.MemoryUserAccount("testadmin", "adminpass", webchatty.UserAccessLevel.Administrator)
+    ])
+});
