@@ -10,10 +10,12 @@ var templateCache = require('gulp-angular-templatecache')
 var changed = require('gulp-changed')
 var gulpif = require('gulp-if')
 var server = require('gulp-server-livereload')
+var typescript = require('gulp-typescript')
+var merge = require('merge2')
 
 var paths = {
     src: {
-        base: './src/main',
+        base: './src/frontend',
         js: [
             './bower_components/lodash/lodash.js',
             './bower_components/angular/angular.js',
@@ -21,33 +23,39 @@ var paths = {
             './bower_components/angular-local-storage/dist/angular-local-storage.js',
             './bower_components/angular-recursion/angular-recursion.js',
             './bower_components/angular-sanitize/angular-sanitize.js',
-            './src/main/app.js',
-            './src/main/**/*.js'
+            './src/frontend/app.js',
+            './src/frontend/**/*.js'
         ],
-        css: './src/main/**/*.css',
+        css: './src/frontend/**/*.css',
         html: [
-            './src/main/**/*.html',
-            '!./src/main/index.html'
+            './src/frontend/**/*.html',
+            '!./src/frontend/index.html'
         ],
         static_content: [
-            './src/main/index.html',
-            './src/main/favicon.ico',
-            './src/main/images/**'
+            './src/frontend/index.html',
+            './src/frontend/favicon.ico',
+            './src/frontend/images/**'
+        ],
+        backend: [
+            './src/backend/**'
         ]
     },
     dist: {
-        root: './build',
+        root: './build-frontend',
         bundleName: 'bundle.js',
         coverage: './coverage'
+    },
+    distBackend: {
+        root: './build-backend',
     }
 }
 
-//clean up old build
+// clean up old build
 gulp.task('clean', function clean(callback) {
-    del([paths.dist.root, paths.dist.coverage], callback)
+    del([paths.dist.root, paths.distBackend.root, paths.dist.coverage], callback)
 })
 
-//copy over html
+// copy over html
 gulp.task('build-html', function() {
     gulp.src(paths.src.html)
         .pipe(clip())
@@ -56,7 +64,7 @@ gulp.task('build-html', function() {
         .pipe(gulp.dest(paths.dist.root))
 })
 
-//copy over html
+// copy over html
 gulp.task('build-static', function() {
     gulp.src(paths.src.static_content, { base: paths.src.base })
         .pipe(clip())
@@ -64,7 +72,7 @@ gulp.task('build-static', function() {
         .pipe(gulp.dest(paths.dist.root))
 })
 
-//minify and concat all js
+// minify and concat all js
 gulp.task('build-js', buildJs(false))
 gulp.task('build-js-debug', buildJs(true))
 function buildJs(debug) {
@@ -82,7 +90,7 @@ function buildJs(debug) {
     }
 }
 
-//minify and concat all css
+// minify and concat all css
 gulp.task('build-css', function() {
     gulp.src(paths.src.css)
         .pipe(clip())
@@ -92,12 +100,24 @@ gulp.task('build-css', function() {
         .pipe(gulp.dest(paths.dist.root))
 })
 
-// Rerun the task when a file changes
+// build the backend
+var backendProject = typescript.createProject('tsconfig.json', {
+    typescript: require('typescript')
+})
+gulp.task('build-backend', function() {
+    var tsResult = backendProject.src().pipe(typescript(backendProject))
+    return merge([tsResult.js, tsResult.dts])
+        .pipe(changed(paths.distBackend.root, {hasChanged: changed.compareSha1Digest}))
+        .pipe(gulp.dest(paths.distBackend.root));
+})
+
+// rerun the task when a file changes
 gulp.task('watch', function() {
     gulp.watch(paths.src.static_content, ['build-static'])
     gulp.watch(paths.src.html, ['build-html'])
     gulp.watch(paths.src.js, ['build-js-debug'])
     gulp.watch(paths.src.css, ['build-css'])
+    gulp.watch(paths.src.backend, ['build-backend'])
 })
 
 gulp.task('server', function() {
@@ -111,4 +131,4 @@ gulp.task('server', function() {
 })
 
 gulp.task('default', ['server', 'watch', 'build-html', 'build-js-debug', 'build-css', 'build-static'])
-gulp.task('build', ['build-html', 'build-js', 'build-css', 'build-static'])
+gulp.task('build', ['build-html', 'build-js', 'build-css', 'build-static', 'build-backend'])
