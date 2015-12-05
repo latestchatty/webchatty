@@ -44,87 +44,71 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
     
     // Resolves a list of moderation flags that the user has selected to show.  If the user has never set flag filters,
     // then a default set of filters are returned.
-    public getModerationFlagFilters(username: string): Promise<spec.ModerationFlag[]> {
-        return this.checkUserExists(username)
-            .then(() => {
-                var defaultFilters = [
-                    spec.ModerationFlag.Informative,
-                    spec.ModerationFlag.OnTopic,
-                    spec.ModerationFlag.PoliticalOrReligious,
-                    spec.ModerationFlag.Stupid,
-                    spec.ModerationFlag.Tangent
-                ];
-                return Promise.resolve(this._flagFilters.lookup(username.toLowerCase(), defaultFilters));
-            });
+    public async getModerationFlagFilters(username: string): Promise<spec.ModerationFlag[]> {
+        await this.checkUserExists(username);
+        var defaultFilters = [
+            spec.ModerationFlag.Informative,
+            spec.ModerationFlag.OnTopic,
+            spec.ModerationFlag.PoliticalOrReligious,
+            spec.ModerationFlag.Stupid,
+            spec.ModerationFlag.Tangent
+        ];
+        return this._flagFilters.lookup(username.toLowerCase(), defaultFilters);
     }
     
     // Sets the moderation flag settings for this user.  Resolves true if it worked.
-    public setModerationFlagFilters(username: string, flags: spec.ModerationFlag[]): Promise<boolean> {
-        return this.checkUserExists(username)
-            .then(() => {
-                this._flagFilters.set(username.toLowerCase(), flags);
-                return Promise.resolve(true);
-            });
+    public async setModerationFlagFilters(username: string, flags: spec.ModerationFlag[]): Promise<boolean> {
+        await this.checkUserExists(username);
+        this._flagFilters.set(username.toLowerCase(), flags);
+        return true;
     }
     
     // Resolves a mapping of post IDs to MarkedPostTypes, one pair for each marked post.
-    public getMarkedPosts(username: string): Promise<Dictionary<number, spec.MarkedPostType>> {
-        return this.checkUserExists(username)
-            .then(() => {
-                var defaultDict = new Dictionary<number, spec.MarkedPostType>();
-                return Promise.resolve(this._markedPosts.lookup(username.toLowerCase(), defaultDict));
-            });
+    public async getMarkedPosts(username: string): Promise<Dictionary<number, spec.MarkedPostType>> {
+        await this.checkUserExists(username);
+        var defaultDict = new Dictionary<number, spec.MarkedPostType>();
+        return this._markedPosts.lookup(username.toLowerCase(), defaultDict);
     }
     
     // Sets a marked post for this user.  Resolves true if it worked.
-    public setMarkedPost(username: string, postId: number, type: spec.MarkedPostType): Promise<boolean> {
-        return this.getMarkedPosts(username)
-            .then(list => {
-                list.set(postId, type);
-                return Promise.resolve(true);
-            });
+    public async setMarkedPost(username: string, postId: number, type: spec.MarkedPostType): Promise<boolean> {
+        var list = await this.getMarkedPosts(username);
+        list.set(postId, type);
+        return true;
     }
     
     // Removes all marked posts for this user.  Resolves true if it worked.
-    public clearMarkedPosts(username: string): Promise<boolean> {
-        return this.checkUserExists(username)
-            .then(() => {
-                this._markedPosts.remove(username.toLowerCase());
-                return Promise.resolve(true);
-            });
+    public async clearMarkedPosts(username: string): Promise<boolean> {
+        await this.checkUserExists(username);
+        this._markedPosts.remove(username.toLowerCase());
+        return true;
     }
 
     // Retrieves a blob of client-defined data.  Resolves an empty string if no data is present.
-    public getClientData(username: string, client: string): Promise<string> {
-        return this.checkUserExists(username)
-            .then(() => {
-                return Promise.resolve(this._blobs.lookup({username: username.toLowerCase(), client: client}, ""));
-            });
+    public async getClientData(username: string, client: string): Promise<string> {
+        await this.checkUserExists(username);
+        return this._blobs.lookup({username: username.toLowerCase(), client: client}, "");
     }
     
     // Saves a blob of client-defined data.  Resolves true if it worked.
     // The implementation must accept at least 100,000 bytes for the data string but can reject above that if it wants.
-    public setClientData(username: string, client: string, data: string): Promise<boolean> {
-        return this.checkUserExists(username)
-            .then(() => {
-                // we'll accept 100,000 characters which will be at least the required 100,000 bytes
-                if (data.length > 100000) {
-                    return Promise.reject<boolean>(spec.apiError("ERR_ARGUMENT", "data is too long."));
-                }
-                this._blobs.set({username: username.toLowerCase(), client: client}, data);
-                return Promise.resolve(true);
-            });
+    public async setClientData(username: string, client: string, data: string): Promise<boolean> {
+        await this.checkUserExists(username);
+        // we'll accept 100,000 characters which will be at least the required 100,000 bytes
+        if (data.length > 100000) {
+            return Promise.reject<boolean>(spec.apiError("ERR_ARGUMENT", "data is too long."));
+        }
+        this._blobs.set({username: username.toLowerCase(), client: client}, data);
+        return true;
     }
     
     // Resolves true if the user exists.  Rejects with ERR_ARGUMENT if the user does not exist.
-    private checkUserExists(username: string): Promise<boolean> {
-        return this._server.accountConnector.userExists(username)
-            .then(exists => {
-                if (exists) {
-                    return Promise.resolve(true);
-                } else {
-                    return Promise.reject<boolean>(spec.apiError("ERR_ARGUMENT", "User does not exist."));
-                }
-            });
+    private async checkUserExists(username: string): Promise<boolean> {
+        var exists = await this._server.accountConnector.userExists(username);
+        if (exists) {
+            return true;
+        } else {
+            return Promise.reject<boolean>(spec.apiError("ERR_ARGUMENT", "User does not exist."));
+        }
     }
 }

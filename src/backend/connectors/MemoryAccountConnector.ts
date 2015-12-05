@@ -50,28 +50,28 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
     
     // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem
     // occurs other than the username/password being wrong.
-    public tryLogin(username: string, password: string): Promise<spec.UserCredentials> {
+    public async tryLogin(username: string, password: string): Promise<spec.UserCredentials> {
         var account = this._accounts.lookup(username, null);
         if (account === null) {
-            return Promise.resolve(null); // wrong username
+            return <spec.UserCredentials>null; // wrong username
         } else if (account.password === password) {
-            return Promise.resolve(new spec.UserCredentials(username, account.level));
+            return new spec.UserCredentials(username, account.level);
         } else {
-            return Promise.resolve(null); // wrong password
+            return <spec.UserCredentials>null; // wrong password
         }
     }
     
     /// Resolves true if the username exists (case insensitive), false if it does not.
-    public userExists(username: string): Promise<boolean> {
+    public async userExists(username: string): Promise<boolean> {
         var usernameLower = username.toLowerCase();
-        return Promise.resolve(this._accounts.keys().some(x => x.toLowerCase() === usernameLower));
+        return this._accounts.keys().some(x => x.toLowerCase() === usernameLower);
     }
     
     // Resolves a mapping of usernames to registration dates on success.  If usernames is not provided, then all users
     // are returned.  If a provided username does not exist, then it is silently omitted from the results.
-    public getUserRegistrationDates(usernames?: string[]): Promise<Dictionary<string, Date>> {
+    public async getUserRegistrationDates(usernames?: string[]): Promise<Dictionary<string, Date>> {
         if (typeof usernames === "undefined") {
-            return Promise.resolve(Dictionary.fromArray(this._accounts.values(), x => x.username, x => x.registrationDate));
+            return Dictionary.fromArray(this._accounts.values(), x => x.username, x => x.registrationDate);
         } else {
             var dict = new Dictionary<string, Date>();
             for (var i = 0; i < usernames.length; i++) {
@@ -81,7 +81,7 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
                     dict.set(username, account.registrationDate);
                 }
             }
-            return Promise.resolve(dict);
+            return dict;
         }
     }
 }
