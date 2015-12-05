@@ -14,7 +14,6 @@
         "express": "^4.13.2",
         "morgan": "^1.6.1",
         "compression": "^1.5.2",
-        "lodash": "^3.10.1",
         "pg": "^4.4.1",
         "mysql": "^2.8.0",
         "body-parser": "^1.14.1"

@@ -23,9 +23,6 @@
     "compression/compression.d.ts": {
       "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
     },
-    "lodash/lodash.d.ts": {
-      "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
-    },
     "pg/pg.d.ts": {
       "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
     },
