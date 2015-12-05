@@ -6,7 +6,8 @@
         "removeComments": false,
         "preserveConstEnums": true,
         "sourceMap": true,
-        "declaration": true
+        "declaration": true,
+        "experimentalAsyncFunctions": true
     },
     "exclude": [
         "node_modules",

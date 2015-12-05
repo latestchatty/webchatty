@@ -21,7 +21,7 @@ import * as api from "../../../index";
 import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Post, "/v2/clientData/setCategoryFilters", req => {
+    server.addRoute(api.RequestMethod.Post, "/v2/clientData/setCategoryFilters", async (req) => {
         var query = new api.QueryParser(req);
         var username = query.getString("username", 1, 50);
         
@@ -38,9 +38,7 @@ module.exports = function(server: api.Server) {
         if (query.getBoolean("informative"))
             filters.push(spec.ModerationFlag.Informative);
         
-        return server.clientDataConnector.setModerationFlagFilters(username, filters)
-            .then(() => {
-                return Promise.resolve({result: "success"});
-            });
+        await server.clientDataConnector.setModerationFlagFilters(username, filters);
+        return { result: "success" };
     });
 };

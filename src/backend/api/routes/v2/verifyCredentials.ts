@@ -21,23 +21,21 @@ import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", req => {
+    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
         var query = new api.QueryParser(req);
         var username = query.getString("username");
         var password = query.getString("password");
-        return server.accountConnector.tryLogin(username, password)
-            .then(userCredentials => {
-                if (userCredentials === null) {
-                    return Promise.resolve({
-                        isValid: false,
-                        isModerator: false
-                    });
-                } else {
-                    return Promise.resolve({
-                        isValid: true,
-                        isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-                    });
-                }
-            });
+        var userCredentials = await server.accountConnector.tryLogin(username, password);
+        if (userCredentials === null) {
+            return {
+                isValid: false,
+                isModerator: false
+            };
+        } else {
+            return {
+                isValid: true,
+                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
+            };
+        }
     });
 };

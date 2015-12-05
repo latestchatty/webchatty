@@ -21,20 +21,18 @@ import * as api from "../../../index";
 import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/clientData/getCategoryFilters", req => {
+    server.addRoute(api.RequestMethod.Get, "/v2/clientData/getCategoryFilters", async (req) => {
         var query = new api.QueryParser(req);
         var username = query.getString("username", 1, 50);
-        return server.clientDataConnector.getModerationFlagFilters(username)
-            .then(flags => {
-                return Promise.resolve({
-                    filters: {
-                        nws: flags.some(x => x === spec.ModerationFlag.NotWorkSafe),
-                        stupid: flags.some(x => x === spec.ModerationFlag.Stupid),
-                        political: flags.some(x => x === spec.ModerationFlag.PoliticalOrReligious),
-                        tangent: flags.some(x => x === spec.ModerationFlag.Tangent),
-                        informative: flags.some(x => x === spec.ModerationFlag.Informative)
-                    }
-                });
-            });
+        var flags = await server.clientDataConnector.getModerationFlagFilters(username);
+        return {
+            filters: {
+                nws: flags.some(x => x === spec.ModerationFlag.NotWorkSafe),
+                stupid: flags.some(x => x === spec.ModerationFlag.Stupid),
+                political: flags.some(x => x === spec.ModerationFlag.PoliticalOrReligious),
+                tangent: flags.some(x => x === spec.ModerationFlag.Tangent),
+                informative: flags.some(x => x === spec.ModerationFlag.Informative)
+            }
+        };
     });
 };

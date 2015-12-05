@@ -21,14 +21,10 @@ import * as api from "../../../index";
 import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/clientData/getMarkedPosts", req => {
+    server.addRoute(api.RequestMethod.Get, "/v2/clientData/getMarkedPosts", async (req) => {
         var query = new api.QueryParser(req);
         var username = query.getString("username", 1, 50);
-        return server.clientDataConnector.getMarkedPosts(username)
-            .then(dict => {
-                return Promise.resolve({
-                    markedPosts: dict.pairs().map(x => <any>{ id: x.key, type: x.value })
-                });
-            });
+        var dict = await server.clientDataConnector.getMarkedPosts(username);
+        return { markedPosts: dict.pairs().map(x => <any>{ id: x.key, type: x.value }) };
     });
 };

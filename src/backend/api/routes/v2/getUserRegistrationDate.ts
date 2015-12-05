@@ -21,14 +21,12 @@ import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/getUserRegistrationDate", req => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getUserRegistrationDate", async (req) => {
         var query = new api.QueryParser(req);
         var usernames = query.getStringList("username", 1, 50);
-        return server.accountConnector.getUserRegistrationDates(usernames)
-            .then(dict => {
-                return Promise.resolve({
-                    users: dict.pairs().map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
-                });
-            });
+        var dict = await server.accountConnector.getUserRegistrationDates(usernames);
+        return {
+            users: dict.pairs().map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
+        };
     });
 };

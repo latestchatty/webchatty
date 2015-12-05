@@ -21,16 +21,14 @@ import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/getAllTenYearUsers", req => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getAllTenYearUsers", async (req) => {
         const tenYearsInMsec = 315400000000;
         const tenYearsAgoMsec = new Date().getTime() - tenYearsInMsec;
-        return server.accountConnector.getUserRegistrationDates()
-            .then(dict => {
-                return Promise.resolve({
-                    users: dict.pairs()
-                        .filter(x => x.value.getTime() < tenYearsAgoMsec)
-                        .map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
-                });
-            });
+        var dict = await server.accountConnector.getUserRegistrationDates();
+        return {
+            users: dict.pairs()
+                .filter(x => x.value.getTime() < tenYearsAgoMsec)
+                .map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
+        };
     });
 };

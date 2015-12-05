@@ -21,12 +21,10 @@ import * as api from "../../../index";
 import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Post, "/v2/clientData/clearMarkedPosts", req => {
+    server.addRoute(api.RequestMethod.Post, "/v2/clientData/clearMarkedPosts", async (req) => {
         var query = new api.QueryParser(req);
         var username = query.getString("username", 1, 50);
-        return server.clientDataConnector.clearMarkedPosts(username)
-            .then(() => {
-                return Promise.resolve({result: "success"});
-            });
+        await server.clientDataConnector.clearMarkedPosts(username);
+        return { result: "success" };
     });
 };
