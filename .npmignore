@@ -3,3 +3,9 @@ typings/
 coverage
 .idea
 .c9/
+src/
+.eslintrc
+bower.json
+gulpfile.js
+tsconfig.json
+tsd.json
