@@ -73,6 +73,13 @@ export class Server {
         this._app.listen(this._config.httpPort);
         console.log("Listening on port " + this._config.httpPort);
     }
+    
+    public addStaticFileRoute(urlRoot: string, diskRoot: string): void {
+        this._app.use(urlRoot, express.static(diskRoot, {
+            maxAge: "6h",
+            redirect: true
+        }));
+    }
 
     public addRoute(method: RequestMethod, path: string, handler: (req: express.Request) => Promise<any>): void {
         var expressHandler: express.RequestHandler = (req, res) => {

@@ -21,16 +21,16 @@ div.treeview ul {
 }
 div.treeview ul {
     margin-left: 5px;
-    background: url('../images/commentsul.gif') repeat-y 2px bottom;
+    background: url('images/commentsul.gif') repeat-y 2px bottom;
 }
 div.treeview ul li {
     font-size: 13px;
     line-height: 16px;
     padding-left: 13px;
-    background: url('../images/commentsbullet.gif') no-repeat 2px top;
+    background: url('images/commentsbullet.gif') no-repeat 2px top;
 }
 div.treeview ul li:last-child {
-    background: #000 url('../images/commentsbulletlast.gif') no-repeat 2px top;
+    background: #000 url('images/commentsbulletlast.gif') no-repeat 2px top;
 }
 
 /* comment reply stuff */
