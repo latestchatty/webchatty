@@ -14,7 +14,11 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../typings/tsd.d.ts" />
 
-export * from "./MemoryAccountConnector";
-export * from "./MemoryClientDataConnector";
+// in order of increasing access.  each access level has all the permissions of the levels lower than it
+export enum UserAccessLevel {
+    User = 0,
+    Moderator = 1,
+    Administrator = 2
+}

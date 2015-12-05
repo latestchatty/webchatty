@@ -14,7 +14,14 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../typings/tsd.d.ts" />
 
-export * from "./MemoryAccountConnector";
-export * from "./MemoryClientDataConnector";
+export enum ModerationFlag {
+    OnTopic,
+    NotWorkSafe,
+    Stupid,
+    PoliticalOrReligious,
+    Tangent,
+    Informative,
+    Nuked
+}

@@ -16,6 +16,7 @@
 
 /// <reference path="../../../typings/tsd.d.ts" />
 
+import * as api from "../api/index";
 import * as spec from "../spec/index";
 import { Dictionary } from "../collections/index";
 
@@ -41,6 +42,13 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
         this._accounts = Dictionary.fromArray(initialAccounts, x => x.username, x => x);
     }
     
+    // Called by the server at startup to provide the connector with a reference to the server instance.
+    public injectServer(server: api.Server): void {
+        // we don't care about the server reference
+    }
+    
+    // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem
+    // occurs other than the username/password being wrong.
     public tryLogin(username: string, password: string): Promise<spec.UserCredentials> {
         var account = this._accounts.lookup(username, null);
         if (account === null) {
@@ -52,6 +60,14 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
         }
     }
     
+    /// Resolves true if the username exists (case insensitive), false if it does not.
+    public userExists(username: string): Promise<boolean> {
+        var usernameLower = username.toLowerCase();
+        return Promise.resolve(this._accounts.keys().some(x => x.toLowerCase() === usernameLower));
+    }
+    
+    // Resolves a mapping of usernames to registration dates on success.  If usernames is not provided, then all users
+    // are returned.  If a provided username does not exist, then it is silently omitted from the results.
     public getUserRegistrationDates(usernames?: string[]): Promise<Dictionary<string, Date>> {
         if (typeof usernames === "undefined") {
             return Promise.resolve(Dictionary.fromArray(this._accounts.values(), x => x.username, x => x.registrationDate));

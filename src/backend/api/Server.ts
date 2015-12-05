@@ -34,6 +34,7 @@ export function runServer(config: IServerConfiguration): void {
 export interface IServerConfiguration {
     httpPort: number;
     accountConnector: spec.IAccountConnector;
+    clientDataConnector: spec.IClientDataConnector;
 }
 
 export enum RequestMethod {
@@ -45,9 +46,11 @@ export class Server {
     private _app: express.Express;
    
     public accountConnector: spec.IAccountConnector;
+    public clientDataConnector: spec.IClientDataConnector;
     
     constructor(config: IServerConfiguration) {
         this.accountConnector = config.accountConnector;
+        this.clientDataConnector = config.clientDataConnector;
         this._config = config;
         this._app = express();
         this._app.use(morgan("combined"));
@@ -56,6 +59,10 @@ export class Server {
             threshold: 1
         }));
         this._app.use(bodyParser.urlencoded({ extended: false }));
+
+        // configure the connectors with a reference to the server instance
+        this.accountConnector.injectServer(this);
+        this.clientDataConnector.injectServer(this);
         
         // load all of the routes in ./routes/ automatically by searching the filesystem for .js files
         findFilesSync(path.join(__dirname, "routes")).forEach(routeFilePath => require(routeFilePath)(this));
@@ -106,8 +113,6 @@ export class Server {
         } else {
             this._app.post(path, expressHandler);
         }
-        
-        console.log("Added route: " + path);
     }
 }
 

@@ -16,33 +16,22 @@
 
 /// <reference path="../../../typings/tsd.d.ts" />
 
+import * as api from "../api/index";
 import * as spec from "./index";
 import { Dictionary } from "../collections/index";
 
 export interface IAccountConnector {
+    // Called by the server at startup to provide the connector with a reference to the server instance.
+    injectServer(server: api.Server): void;
+    
     // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem
     // occurs other than the username/password being wrong.
     tryLogin(username: string, password: string): Promise<spec.UserCredentials>;
     
+    /// Resolves true if the username exists (case insensitive), false if it does not.
+    userExists(username: string): Promise<boolean>;
+    
     // Resolves a mapping of usernames to registration dates on success.  If usernames is not provided, then all users
     // are returned.  If a provided username does not exist, then it is silently omitted from the results.
     getUserRegistrationDates(usernames?: string[]): Promise<Dictionary<string, Date>>;
-}
-
-// in order of increasing access.  each access level has all the permissions of the levels lower than it
-export enum UserAccessLevel {
-    User = 0,
-    Moderator = 1,
-    Administrator = 2
-}
-
-// this object is only produced as the result of a successful login
-export class UserCredentials {
-    username: string;
-    level: spec.UserAccessLevel;
-    
-    constructor(username: string, level: spec.UserAccessLevel) {
-        this.username = username;
-        this.level = level;
-    }
 }

@@ -14,7 +14,21 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../../typings/tsd.d.ts" />
 
-export * from "./MemoryAccountConnector";
-export * from "./MemoryClientDataConnector";
+import * as api from "../../../index";
+import * as spec from "../../../../spec/index";
+
+module.exports = function(server: api.Server) {
+    server.addRoute(api.RequestMethod.Post, "/v2/clientData/markPost", req => {
+        var query = new api.QueryParser(req);
+        var username = query.getString("username", 1, 50);
+        var postId = query.getInteger("postId");
+        var type = query.getMarkedPostType("type");
+        //TODO: get whether postId exists, returning ERR_POST_DOES_NOT_EXIST if it does not
+        return server.clientDataConnector.setMarkedPost(username, postId, type)
+            .then(() => {
+                return Promise.resolve({result: "success"});
+            });
+    });
+};

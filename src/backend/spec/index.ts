@@ -16,5 +16,7 @@
 
 /// <reference path="../../../typings/tsd.d.ts" />
 
+export * from "./data/index";
 export * from "./apiError";
 export * from "./IAccountConnector";
+export * from "./IClientDataConnector";
