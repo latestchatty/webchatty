@@ -15,6 +15,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// <reference path="../../../typings/tsd.d.ts" />
+"use strict";
 
 import * as api from "../api/index";
 import * as spec from "../spec/index";
@@ -108,7 +109,7 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
             .then(() => {
                 // we'll accept 100,000 characters which will be at least the required 100,000 bytes
                 if (data.length > 100000) {
-                    return Promise.reject(spec.apiError("ERR_ARGUMENT", "data is too long."));
+                    return Promise.reject<boolean>(spec.apiError("ERR_ARGUMENT", "data is too long."));
                 }
                 this._blobs.set({username: username.toLowerCase(), client: client}, data);
                 return Promise.resolve(true);
@@ -122,7 +123,7 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
                 if (exists) {
                     return Promise.resolve(true);
                 } else {
-                    return Promise.reject(spec.apiError("ERR_ARGUMENT", "User does not exist."));
+                    return Promise.reject<boolean>(spec.apiError("ERR_ARGUMENT", "User does not exist."));
                 }
             });
     }

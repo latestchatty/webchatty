@@ -15,6 +15,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// <reference path="../../../../typings/tsd.d.ts" />
+"use strict";
 
 // in order of increasing access.  each access level has all the permissions of the levels lower than it
 export enum UserAccessLevel {

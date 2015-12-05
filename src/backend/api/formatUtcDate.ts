@@ -15,6 +15,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// <reference path="../../../typings/tsd.d.ts" />
+"use strict";
 
 export function formatUtcDate(date: Date): string {
     // "2011-10-05T14:48:00.000Z" --> "2011-10-05T14:48:00Z"

@@ -15,6 +15,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// <reference path="../../../typings/tsd.d.ts" />
+"use strict";
 
 import * as api from "../api/index";
 import * as spec from "./index";

@@ -15,13 +15,12 @@
         "morgan": "^1.6.1",
         "compression": "^1.5.2",
         "lodash": "^3.10.1",
-        "es6-promise": "^3.0.2",
         "pg": "^4.4.1",
         "mysql": "^2.8.0",
         "body-parser": "^1.14.1"
     },
     "devDependencies": {
-        "typescript": "^1.6.2",
+        "typescript": "^1.7.3",
         "tsd": "^0.6.5",
         "eslint": "^0.24.0",
         "doctoc": "^0.14.2",

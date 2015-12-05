@@ -15,6 +15,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /// <reference path="../../../typings/tsd.d.ts" />
+"use strict";
 
 export class KeyValuePair<TKey, TValue> {
     key: TKey;
@@ -93,7 +94,10 @@ export class Dictionary<TKey, TValue> {
         return this.items[JSON.stringify(key)];
     }
     
-    public lookup(key: TKey, defaultValue: TValue = null): TValue {
+    public lookup(key: TKey, defaultValue?: TValue): TValue {
+        if (typeof defaultValue === "undefined") {
+            defaultValue = null;
+        }
         if (key === null) {
             throw new Error("key must not be null.");
         }
