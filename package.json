@@ -44,11 +44,8 @@
         "prepublish": "bower install && tsd install && gulp build",
         "start": "node ./build-backend/src/backend/runTestServer",
         "clean": "gulp clean",
-        "watch": "gulp watch",
-        "frontend-dev-server": "gulp server",
-        "lint": "eslint -c .eslintrc $( find . -type f -name '*.js' | grep -v node_modules/ | grep -v gulpfile | grep -v build-frontend/ | grep -v build-backend/ | grep -v bower_components/ | grep -v wc-backend/ )",
-        "build": "npm run lint && npm install",
-        "dev": "npm run build && npm start",
+        "watch": "npm install && gulp watch",
+        "lint": "eslint -c .eslintrc $( find . -type f -name '*.js' | grep -v node_modules/ | grep -v gulpfile | grep -v build-frontend/ | grep -v build-backend/ | grep -v bower_components/ )",
         "doctoc": "ls doc/*.md | xargs -L 1 doctoc --notitle"
     }
 }
