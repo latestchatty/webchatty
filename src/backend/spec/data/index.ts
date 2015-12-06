@@ -17,7 +17,10 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 "use strict";
 
+export * from "./events/index";
+export * from "./LolCount";
 export * from "./MarkedPostType";
 export * from "./ModerationFlag";
+export * from "./Post";
 export * from "./UserAccessLevel";
 export * from "./UserCredentials";

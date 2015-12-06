@@ -14,25 +14,10 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-import * as api from "../../../index";
-import * as spec from "../../../../spec/index";
+import * as spec from "./../index";
 
-module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/clientData/getCategoryFilters", async (req) => {
-        var query = new api.QueryParser(req);
-        var username = query.getString("username", 1, 50);
-        var flags = await server.clientDataConnector.getModerationFlagFilters(username);
-        return {
-            filters: {
-                nws: flags.some(x => x === spec.ModerationFlag.NotWorkSafe),
-                stupid: flags.some(x => x === spec.ModerationFlag.Stupid),
-                political: flags.some(x => x === spec.ModerationFlag.PoliticalReligious),
-                tangent: flags.some(x => x === spec.ModerationFlag.Tangent),
-                informative: flags.some(x => x === spec.ModerationFlag.Informative)
-            }
-        };
-    });
-};
+export interface IEventData {
+}

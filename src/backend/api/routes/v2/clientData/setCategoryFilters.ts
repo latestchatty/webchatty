@@ -32,7 +32,7 @@ module.exports = function(server: api.Server) {
         if (query.getBoolean("stupid"))
             filters.push(spec.ModerationFlag.Stupid);
         if (query.getBoolean("political"))
-            filters.push(spec.ModerationFlag.PoliticalOrReligious);
+            filters.push(spec.ModerationFlag.PoliticalReligious);
         if (query.getBoolean("tangent"))
             filters.push(spec.ModerationFlag.Tangent);
         if (query.getBoolean("informative"))

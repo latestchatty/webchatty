@@ -18,7 +18,7 @@
 "use strict";
 
 export enum MarkedPostType {
-    Unmarked,
-    Pinned,
-    Collapsed
+    Unmarked = <any>"unmarked",
+    Pinned = <any>"pinned",
+    Collapsed = <any>"collapsed"
 }

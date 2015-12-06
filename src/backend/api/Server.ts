@@ -23,6 +23,7 @@ import * as compression from "compression";
 import * as fs from "fs";
 import * as path from "path";
 import * as bodyParser from "body-parser";
+import * as api from "./index";
 import * as collections from "../collections/index";
 import * as spec from "../spec/index";
 
@@ -48,6 +49,7 @@ export class Server {
    
     public accountConnector: spec.IAccountConnector;
     public clientDataConnector: spec.IClientDataConnector;
+    public dispatcher: api.Dispatcher = new api.Dispatcher();
     
     constructor(config: IServerConfiguration) {
         this.accountConnector = config.accountConnector;

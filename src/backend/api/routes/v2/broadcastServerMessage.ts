@@ -14,25 +14,27 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-import * as api from "../../../index";
-import * as spec from "../../../../spec/index";
+import * as api from "../../index";
+import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/clientData/getCategoryFilters", async (req) => {
+    server.addRoute(api.RequestMethod.Post, "/v2/broadcastServerMessage", async (req) => {
         var query = new api.QueryParser(req);
-        var username = query.getString("username", 1, 50);
-        var flags = await server.clientDataConnector.getModerationFlagFilters(username);
-        return {
-            filters: {
-                nws: flags.some(x => x === spec.ModerationFlag.NotWorkSafe),
-                stupid: flags.some(x => x === spec.ModerationFlag.Stupid),
-                political: flags.some(x => x === spec.ModerationFlag.PoliticalReligious),
-                tangent: flags.some(x => x === spec.ModerationFlag.Tangent),
-                informative: flags.some(x => x === spec.ModerationFlag.Informative)
-            }
-        };
-    });
+        var username = query.getString("username");
+        var password = query.getString("password");
+        var message = query.getString("message");
+        var credentials = await server.accountConnector.tryLogin(username, password);
+        if (credentials === null || credentials.level < spec.UserAccessLevel.Administrator) {
+            throw spec.apiError("ERR_INVALID_LOGIN", "Administrator-level credentials must be provided.");
+        }
+        
+        var data = new spec.ServerMessageEventData();
+        data.message = message;
+        server.dispatcher.sendEvent(spec.EventType.ServerMessage, data);
+        
+        return { result: "success" };
+    }); 
 };

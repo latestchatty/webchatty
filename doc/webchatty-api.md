@@ -133,7 +133,7 @@ Type | Description
 `[INT]` | Unsigned 31-bit decimal integer (range 0..2147483647).  No leading zeroes.
 `[BIT]` | `true` or `false`
 `[STR]` | String
-`[DAT]` | Combined date and time, represented as a strict subset of RFC 3339, which is itself a strict subset of ISO 8601.  Dates in JSON responses will always be formatted exactly like this: `"2013-12-01T19:39:00Z"`.  The time is in the UTC time zone.  Make sure to convert all `[DAT]` values to the user's local time zone before displaying!
+`[DAT]` | Combined date and time, represented as a strict subset of RFC 3339, which is itself a strict subset of ISO 8601.  Dates in JSON responses will always be formatted exactly like this: `"2013-12-01T19:39:00.000Z"`.  The time is in the UTC time zone.  Make sure to convert all `[DAT]` values to the user's local time zone before displaying!
 `[MOD]` | Moderation flag enum.  One of the following strings: `"ontopic"` `"nws"` `"stupid"` `"political"` `"tangent"` `"informative"`
 `[MODN]` | Moderation flag enum, including "nuked".  One of the following strings: `"ontopic"` `"nws"` `"stupid"` `"political"` `"tangent"` `"informative"` `"nuked"`
 `[MBX]` | Mailbox enum.  One of the following strings: `"inbox"` `"sent"`
@@ -202,7 +202,7 @@ Type | Description
 >{
 >   "postId": [INT],
 >   "post": [POST],
->   "parentAuthor": [STR?]  // only provided if requested
+>   "parentAuthor": [STR]
 >}
 >```
 
@@ -606,11 +606,10 @@ Waits until a new event occurs, and then returns the information about all event
 
 A maximum of 10,000 events are returned.  An error is returned if more than 10,000 events have occurred since your specified `lastEventId`.  In that case, throw out your world and start over.  This will be faster than trying to catch up with a massive list of individual updates.
 
-Note that sometimes this will return an empty list of events.  This is normal.
+Note that sometimes this will return an empty list of events.  This is normal.  For instance, if no events have occurred yet.
 
 Parameters:
 - `lastEventId=[INT]` - Wait until any event newer than this ID appears.  If a newer event already exists, then the request returns immediately without waiting.
-- `includeParentAuthor=[BIT?]` - If true, then the parentAuthor field will be included in the E_NEWP object.  By default, it is not included.
 
 Response:
 ```
@@ -630,7 +629,6 @@ A maximum of 10,000 events are returned.  An error is returned if more than 10,0
 
 Parameters:
 - `lastEventId=[INT]` - Return any event newer than this ID.
-- `includeParentAuthor=[BIT?]` - If true, then the parentAuthor field will be included in the `E_NEWP` object.  By default, it is not included.
 
 Response:
 ```

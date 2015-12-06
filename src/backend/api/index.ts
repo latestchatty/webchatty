@@ -17,6 +17,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 "use strict";
 
+export * from "./Dispatcher";
 export * from "./formatUtcDate";
-export * from "./Server";
 export * from "./QueryParser";
+export * from "./Server";

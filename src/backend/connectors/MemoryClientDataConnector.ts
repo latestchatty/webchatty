@@ -49,7 +49,7 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
         var defaultFilters = [
             spec.ModerationFlag.Informative,
             spec.ModerationFlag.OnTopic,
-            spec.ModerationFlag.PoliticalOrReligious,
+            spec.ModerationFlag.PoliticalReligious,
             spec.ModerationFlag.Stupid,
             spec.ModerationFlag.Tangent
         ];

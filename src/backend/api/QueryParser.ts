@@ -127,7 +127,7 @@ export class QueryParser {
             case "unmarked": return spec.MarkedPostType.Unmarked;
             case "pinned": return spec.MarkedPostType.Pinned;
             case "collapsed": return spec.MarkedPostType.Collapsed;
-            default: throw spec.apiError("ERROR_ARGUMENT", util.format(
+            default: throw spec.apiError("ERR_ARGUMENT", util.format(
                 "The value for parameter \"%s\" must be: unmarked, pinned, or collapsed.", name));
         }
     }

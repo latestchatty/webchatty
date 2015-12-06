@@ -18,11 +18,11 @@
 "use strict";
 
 export enum ModerationFlag {
-    OnTopic,
-    NotWorkSafe,
-    Stupid,
-    PoliticalOrReligious,
-    Tangent,
-    Informative,
-    Nuked
+    OnTopic = <any>"ontopic",
+    NotWorkSafe = <any>"nws",
+    Stupid = <any>"stupid",
+    PoliticalReligious = <any>"political",
+    Tangent = <any>"tangent",
+    Informative = <any>"informative",
+    Nuked = <any>"nuked"
 }
