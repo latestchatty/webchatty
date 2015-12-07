@@ -13,6 +13,7 @@
     "dependencies": {
         "express": "^4.13.2",
         "morgan": "^1.6.1",
+        "winston": "^2.1.1",
         "compression": "^1.5.2",
         "pg": "^4.4.1",
         "mysql": "^2.8.0",
@@ -38,7 +39,7 @@
         "gulp-sourcemaps": "^1.5.2",
         "gulp-uglify": "^1.2.0",
         "gulp-typescript": "^2.9.2",
-        "http-server": "^0.8.0"        
+        "http-server": "^0.8.0"
     },
     "scripts": {
         "prepublish": "bower install && tsd install && gulp build",

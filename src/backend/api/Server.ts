@@ -19,6 +19,7 @@
 
 import * as express from "express";
 import * as morgan from "morgan";
+import * as winston from "winston";
 import * as compression from "compression";
 import * as fs from "fs";
 import * as path from "path";
@@ -35,6 +36,12 @@ export function runServer(config: IServerConfiguration): void {
 
 export interface IServerConfiguration {
     httpPort: number;
+
+    logFilePath: string;
+    logMaxFileSize: number;
+    logMaxFiles: number;
+    logUseJsonFormat: boolean;
+
     accountConnector: spec.IAccountConnector;
     clientDataConnector: spec.IClientDataConnector;
 }
@@ -46,6 +53,7 @@ export enum RequestMethod {
 export class Server {
     private _config: IServerConfiguration;
     private _app: express.Express;
+    private _logger: winston.LoggerInstance;
    
     public accountConnector: spec.IAccountConnector;
     public clientDataConnector: spec.IClientDataConnector;
@@ -54,9 +62,44 @@ export class Server {
     constructor(config: IServerConfiguration) {
         this.accountConnector = config.accountConnector;
         this.clientDataConnector = config.clientDataConnector;
+        
         this._config = config;
         this._app = express();
-        this._app.use(morgan("combined"));
+        
+       this._logger = new winston.Logger({
+            transports: [
+                new winston.transports.File({
+                    level: "info",
+                    filename: config.logFilePath,
+                    handleExceptions: true,
+                    json: config.logUseJsonFormat,
+                    maxsize: config.logMaxFileSize,
+                    maxFiles: config.logMaxFiles,
+                    colorize: false
+                }),
+                new winston.transports.Console({
+                    level: "debug",
+                    handleExceptions: true,
+                    json: false,
+                    colorize: true
+                })
+            ],
+            exitOnError: false
+        });
+        var isErrorResponseRegex = /^[45][0-9][0-9]/;
+        this._app.use(morgan(":status :remote-addr \":method :url\" - :response-time ms - \":referrer\" \":user-agent\"", {
+            stream: <any>{ // any cast is because the typing is wrong
+                write: (str: string) => {
+                    var isError = isErrorResponseRegex.test(str);
+                    // send morgan's output to winston
+                    if (isError) {
+                        this._logger.log("error", str.trim());
+                    } else {
+                        this._logger.log("info", str.trim());
+                    }
+                }
+            }
+        }));
         this._app.use(compression({
             filter: () => true,
             threshold: 1
@@ -66,6 +109,7 @@ export class Server {
         // configure the connectors with a reference to the server instance
         this.accountConnector.injectServer(this);
         this.clientDataConnector.injectServer(this);
+        this.dispatcher.injectServer(this);
         
         // load all of the routes in ./routes/ automatically by searching the filesystem for .js files
         findFilesSync(path.join(__dirname, "routes")).forEach(routeFilePath => require(routeFilePath)(this));
@@ -73,7 +117,11 @@ export class Server {
 
     public run(): void {
         this._app.listen(this._config.httpPort);
-        console.log("Listening on port " + this._config.httpPort);
+        this.log("info", "Listening on port " + this._config.httpPort);
+    }
+    
+    public log(level: string, message: string): void {
+        this._logger.log(level, message);
     }
     
     public addStaticFileRoute(urlRoot: string, diskRoot: string): void {

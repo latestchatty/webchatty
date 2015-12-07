@@ -17,6 +17,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as api from "./index";
 import * as spec from "../spec/index";
 
 const MAX_RETAINED_EVENTS = 10000;
@@ -26,9 +27,14 @@ interface IEventWaiter {
 };
 
 export class Dispatcher {
+    private _server: api.Server;
     private _nextId: number = 1;
     private _events: spec.Event[] = []; 
     private _eventWaiters: IEventWaiter[] = [];
+    
+    public injectServer(server: api.Server): void {
+        this._server = server;
+    }
     
     public sendEvent(type: spec.EventType, data: spec.IEventData): void {
         // store the event at the end of the _events array
@@ -50,7 +56,7 @@ export class Dispatcher {
         });
         this._eventWaiters = [];
         
-        console.log("Event #" + event.eventId + ": " + event.eventType);
+        this._server.log("verbose", "Event #" + event.eventId + ": " + event.eventType);
     }
     
     public pollForEvent(lastEventId: number): spec.Event[] {

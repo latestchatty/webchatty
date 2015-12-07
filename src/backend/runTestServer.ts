@@ -24,6 +24,10 @@ import * as webchatty from "./webchatty";
 
 webchatty.runServer({
     httpPort: 8080,
+    logFilePath: "/tmp/webchatty.log",
+    logMaxFileSize: 5000000,
+    logMaxFiles: 5,
+    logUseJsonFormat: false,
     accountConnector: new webchatty.MemoryAccountConnector([
         new webchatty.MemoryUserAccount(
             "testuser", "userpass", webchatty.UserAccessLevel.User,  new Date("2014-02-03T11:15:00Z")),

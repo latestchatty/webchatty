@@ -6,7 +6,7 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "node/node.d.ts": {
-      "commit": "fa04c80f4a889613b96cb4f283848c61a9f64233"
+      "commit": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
     },
     "serve-static/serve-static.d.ts": {
       "commit": "fa04c80f4a889613b96cb4f283848c61a9f64233"
@@ -31,6 +31,9 @@
     },
     "body-parser/body-parser.d.ts": {
       "commit": "fa04c80f4a889613b96cb4f283848c61a9f64233"
+    },
+    "winston/winston.d.ts": {
+      "commit": "e5a27ea95e47b95333784f1f0d590127b4e39a89"
     }
   }
 }
