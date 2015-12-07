@@ -9,3 +9,4 @@ bower.json
 gulpfile.js
 tsconfig.json
 tsd.json
+webchatty.log
