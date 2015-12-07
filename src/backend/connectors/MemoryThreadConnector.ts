@@ -31,6 +31,7 @@ class MemoryThread {
 export class MemoryThreadConnnector implements spec.IThreadConnector {
     private _server: api.Server;
     
+    private _nextId = 1;
     private _threads: MemoryThread[] = [];
     private _posts = new Dictionary<number, spec.Post>(); // id -> post
     
@@ -66,5 +67,43 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
             .map(x => x.threadId)
             .value();
         return lodash.filter(this._posts.values(), x => lodash.contains(threadIds, x.threadId));
+    }
+    
+    // Resolves the new post ID if it worked.  parentId may be 0 to post a new thread.
+    // May reject ERR_POST_RATE_LIMIT, ERR_BANNED, ERR_NUKED.  Or ERR_INVALID_PARENT if parentId does not exist.
+    public async postComment(credentials: spec.UserCredentials, parentId: number, text: string): Promise<number> {
+        if (parentId !== 0 && !this._posts.containsKey(parentId)) {
+            return Promise.reject<number>(spec.apiError("ERR_INVALID_PARENT", "parentId does not exist."));
+        }
+        const newPostId = this._nextId++;
+        var parentPost = parentId === 0 ? null : this._posts.get(parentId);
+        var post = {
+            id: newPostId,
+            threadId: parentId === 0 ? newPostId : parentPost.threadId,
+            parentId: parentId,
+            author: credentials.username,
+            category: spec.ModerationFlag.OnTopic,
+            date: new Date(),
+            body: text, //TODO: handle tags
+            lols: <spec.LolCount[]>[]
+        };
+        this._posts.set(newPostId, post);
+        if (parentId === 0) {
+            this._threads.push({
+                threadId: newPostId,
+                newestId: newPostId,
+                postDate: post.date
+            });
+        } else {
+            this._threads.filter(x => x.threadId === post.threadId)[0].newestId = newPostId;
+        }
+        
+        this._server.dispatcher.sendEvent(spec.EventType.NewPost, {
+            postId: newPostId,
+            post: post,
+            parentAuthor: parentId === 0 ? "" : parentPost.author
+        });
+                
+        return newPostId;
     }
 }

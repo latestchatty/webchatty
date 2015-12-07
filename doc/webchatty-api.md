@@ -512,12 +512,14 @@ Parameters:
 Response:
 ```
 {
-   "result": "success"
+   "result": "success",
+   "newPostId": [INT]
 }
 ```
 
 Errors:
 - `ERR_INVALID_LOGIN`
+- `ERR_INVALID_PARENT`
 - `ERR_POST_RATE_LIMIT`
 - `ERR_BANNED`
 - `ERR_NUKED`

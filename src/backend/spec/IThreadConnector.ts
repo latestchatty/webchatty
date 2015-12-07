@@ -34,4 +34,9 @@ export interface IThreadConnector {
     // not necessarily the thread root.  If multiple post IDs in the same thread are specified, that thread's posts are 
     // returned only once.  If a post ID does not exist, then the thread is silently omitted from the results.
     getThreads(postIds: number[]): Promise<spec.Post[]>;
+    
+    // Resolves the new post ID if it worked.  parentId may be 0 to post a new thread.
+    // May reject ERR_POST_RATE_LIMIT, ERR_BANNED, ERR_NUKED.  Or ERR_INVALID_PARENT if parentId does not exist.
+    // The thread connector must arrange for the NewPost event to be sent.
+    postComment(credentials: spec.UserCredentials, parentId: number, text: string): Promise<number>;
 }
