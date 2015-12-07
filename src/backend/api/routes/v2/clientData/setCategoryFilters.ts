@@ -22,10 +22,10 @@ import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Post, "/v2/clientData/setCategoryFilters", async (req) => {
-        var query = new api.QueryParser(req);
-        var username = query.getString("username", 1, 50);
+        const query = new api.QueryParser(req);
+        const username = query.getString("username", 1, 50);
         
-        var filters: spec.ModerationFlag[] = [];
+        const filters: spec.ModerationFlag[] = [];
         
         if (query.getBoolean("nws")) 
             filters.push(spec.ModerationFlag.NotWorkSafe);

@@ -44,6 +44,7 @@ export interface IServerConfiguration {
 
     accountConnector: spec.IAccountConnector;
     clientDataConnector: spec.IClientDataConnector;
+    messageConnector: spec.IMessageConnector;
 }
 
 export enum RequestMethod {
@@ -57,11 +58,13 @@ export class Server {
    
     public accountConnector: spec.IAccountConnector;
     public clientDataConnector: spec.IClientDataConnector;
+    public messageConnector: spec.IMessageConnector;
     public dispatcher: api.Dispatcher = new api.Dispatcher();
     
     constructor(config: IServerConfiguration) {
         this.accountConnector = config.accountConnector;
         this.clientDataConnector = config.clientDataConnector;
+        this.messageConnector = config.messageConnector;
         
         this._config = config;
         this._app = express();
@@ -86,7 +89,7 @@ export class Server {
             ],
             exitOnError: false
         });
-        var isErrorResponseRegex = /^[45][0-9][0-9]/;
+        const isErrorResponseRegex = /^[45][0-9][0-9]/;
         this._app.use(morgan(":status :remote-addr \":method :url\" - :response-time ms - \":referrer\" \":user-agent\"", {
             stream: <any>{ // any cast is because the typing is wrong
                 write: (str: string) => {
@@ -109,6 +112,7 @@ export class Server {
         // configure the connectors with a reference to the server instance
         this.accountConnector.injectServer(this);
         this.clientDataConnector.injectServer(this);
+        this.messageConnector.injectServer(this);
         this.dispatcher.injectServer(this);
         
         // load all of the routes in ./routes/ automatically by searching the filesystem for .js files
@@ -132,9 +136,8 @@ export class Server {
     }
 
     public addRoute(method: RequestMethod, path: string, handler: (req: express.Request) => Promise<any>): void {
-        var expressHandler: express.RequestHandler = (req, res) => {
+        const expressHandler: express.RequestHandler = (req, res) => {
             var handlerPromise: Promise<any>;
-            
             try {
                 handlerPromise = handler(req);
             } catch (ex) {
@@ -172,11 +175,21 @@ export class Server {
             this._app.post(path, expressHandler);
         }
     }
+    
+    public async verifyLogin(username: string, password: string): Promise<spec.UserCredentials> {
+        var credentials = await this.accountConnector.tryLogin(username, password);
+        if (credentials === null) {
+            return Promise.reject<spec.UserCredentials>(spec.apiError(
+                "ERR_INVALID_LOGIN", "Invalid username or password."));
+        } else {
+            return credentials;
+        }
+    }
 }
 
 // Finds all files recursively in 'dir'.
 function findFilesSync(dir: string): string[] {
-    var resultArray: string[] = [];
+    const resultArray: string[] = [];
     findFilesSyncCore(dir, resultArray);
     return resultArray;
 }
@@ -184,8 +197,8 @@ function findFilesSync(dir: string): string[] {
 // Finds all files recursively in 'dir' and adds them to 'resultArray'.
 function findFilesSyncCore(dir: string, resultArray: string[]): void {
     fs.readdirSync(dir).forEach(function(filename) {
-        var filePath = path.join(dir, filename);
-        var stat = fs.lstatSync(filePath);
+        const filePath = path.join(dir, filename);
+        const stat = fs.lstatSync(filePath);
 
         if (stat.isDirectory()) {
             findFilesSyncCore(filePath, resultArray);

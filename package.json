@@ -17,7 +17,8 @@
         "compression": "^1.5.2",
         "pg": "^4.4.1",
         "mysql": "^2.8.0",
-        "body-parser": "^1.14.1"
+        "body-parser": "^1.14.1",
+        "lodash": "^3.10.1"
     },
     "devDependencies": {
         "typescript": "^1.7.3",

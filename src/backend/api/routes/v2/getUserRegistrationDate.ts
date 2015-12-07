@@ -22,9 +22,9 @@ import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Get, "/v2/getUserRegistrationDate", async (req) => {
-        var query = new api.QueryParser(req);
-        var usernames = query.getStringList("username", 1, 50);
-        var dict = await server.accountConnector.getUserRegistrationDates(usernames);
+        const query = new api.QueryParser(req);
+        const usernames = query.getStringList("username", 1, 50);
+        const dict = await server.accountConnector.getUserRegistrationDates(usernames);
         return {
             users: dict.pairs().map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
         };

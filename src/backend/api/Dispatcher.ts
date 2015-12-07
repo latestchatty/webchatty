@@ -38,11 +38,12 @@ export class Dispatcher {
     
     public sendEvent(type: spec.EventType, data: spec.IEventData): void {
         // store the event at the end of the _events array
-        var event = new spec.Event();
-        event.eventId = this._nextId++;
-        event.eventType = type;
-        event.eventData = data;
-        event.eventDate = new Date();
+        const event = {
+            eventId: this._nextId++,
+            eventType: type,
+            eventData: data,
+            eventDate: new Date()
+        };
         this._events.push(event);
         
         // delete the oldest events so we're under the preset limit

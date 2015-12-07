@@ -36,5 +36,6 @@ webchatty.runServer({
         new webchatty.MemoryUserAccount(
             "testadmin", "adminpass", webchatty.UserAccessLevel.Administrator, new Date("2004-01-01T15:30:11Z"))
     ]),
-    clientDataConnector: new webchatty.MemoryClientDataConnector()
+    clientDataConnector: new webchatty.MemoryClientDataConnector(),
+    messageConnector: new webchatty.MemoryMessageConnector()
 });

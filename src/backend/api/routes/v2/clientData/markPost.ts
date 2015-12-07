@@ -22,10 +22,10 @@ import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Post, "/v2/clientData/markPost", async (req) => {
-        var query = new api.QueryParser(req);
-        var username = query.getString("username", 1, 50);
-        var postId = query.getInteger("postId");
-        var type = query.getMarkedPostType("type");
+        const query = new api.QueryParser(req);
+        const username = query.getString("username", 1, 50);
+        const postId = query.getInteger("postId");
+        const type = query.getMarkedPostType("type");
         //TODO: get whether postId exists, returning ERR_POST_DOES_NOT_EXIST if it does not
         await server.clientDataConnector.setMarkedPost(username, postId, type);
         return { result: "success" };

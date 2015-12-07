@@ -22,9 +22,9 @@ import * as spec from "../../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Get, "/v2/clientData/getCategoryFilters", async (req) => {
-        var query = new api.QueryParser(req);
-        var username = query.getString("username", 1, 50);
-        var flags = await server.clientDataConnector.getModerationFlagFilters(username);
+        const query = new api.QueryParser(req);
+        const username = query.getString("username", 1, 50);
+        const flags = await server.clientDataConnector.getModerationFlagFilters(username);
         return {
             filters: {
                 nws: flags.some(x => x === spec.ModerationFlag.NotWorkSafe),

@@ -22,9 +22,9 @@ import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Get, "/v2/pollForEvent", async (req) => {
-        var query = new api.QueryParser(req);
-        var lastEventId = query.getInteger("lastEventId");
-        var events = server.dispatcher.pollForEvent(lastEventId);
+        const query = new api.QueryParser(req);
+        const lastEventId = query.getInteger("lastEventId");
+        const events = server.dispatcher.pollForEvent(lastEventId);
         if (events.length > 0) {
             return { lastEventId: events[events.length - 1].eventId, events: events };
         } else {

@@ -824,6 +824,7 @@ Response:
 
 Errors:
 - `ERR_INVALID_LOGIN`
+- `ERR_INVALID_RECIPIENT`
 
 ### POST /v2/markMessageRead
 Marks a message as read.  If the message does not exist, then the method returns successfully without doing anything.
@@ -842,6 +843,7 @@ Response:
 
 Errors:
 - `ERR_INVALID_LOGIN`
+- `ERR_INVALID_MESSAGE`
 
 ### POST /v2/deleteMessage
 Deletes a message.  If the message does not exist, then the method returns successfully without doing anything.
@@ -850,7 +852,6 @@ Parameters:
 - `username=[STR]` - Username.
 - `password=[STR]` - Password.
 - `messageId=[INT]` - Message ID.
-- `folder=[MBX]` - "inbox" or "sent"
 
 Response:
 ```
@@ -861,6 +862,7 @@ Response:
 
 Errors:
 - `ERR_INVALID_LOGIN`
+- `ERR_INVALID_MESSAGE`
 
 ## Client Data
 The v2 API supports server storage ("cloud synchronization") of client data (primarily user preferences, but it's really just a general purpose store for the client's discretionary use).  There are two types of client data associated with each user:

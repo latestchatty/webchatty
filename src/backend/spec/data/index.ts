@@ -19,7 +19,10 @@
 
 export * from "./events/index";
 export * from "./LolCount";
+export * from "./Mailbox";
+export * from "./MailboxOverview";
 export * from "./MarkedPostType";
+export * from "./Message";
 export * from "./ModerationFlag";
 export * from "./Post";
 export * from "./UserAccessLevel";

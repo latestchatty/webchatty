@@ -21,3 +21,4 @@ export * from "./data/index";
 export * from "./apiError";
 export * from "./IAccountConnector";
 export * from "./IClientDataConnector";
+export * from "./IMessageConnector";

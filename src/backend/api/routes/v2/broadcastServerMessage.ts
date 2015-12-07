@@ -22,16 +22,16 @@ import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Post, "/v2/broadcastServerMessage", async (req) => {
-        var query = new api.QueryParser(req);
-        var username = query.getString("username");
-        var password = query.getString("password");
-        var message = query.getString("message");
-        var credentials = await server.accountConnector.tryLogin(username, password);
+        const query = new api.QueryParser(req);
+        const username = query.getString("username");
+        const password = query.getString("password");
+        const message = query.getString("message");
+        const credentials = await server.accountConnector.tryLogin(username, password);
         if (credentials === null || credentials.level < spec.UserAccessLevel.Administrator) {
             throw spec.apiError("ERR_INVALID_LOGIN", "Administrator-level credentials must be provided.");
         }
         
-        var data = new spec.ServerMessageEventData();
+        const data = new spec.ServerMessageEventData();
         data.message = message;
         server.dispatcher.sendEvent(spec.EventType.ServerMessage, data);
         

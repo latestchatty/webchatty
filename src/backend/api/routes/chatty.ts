@@ -23,6 +23,6 @@ import * as api from "../index";
 module.exports = function(server: api.Server) {
     // __dirname is ./build-backend/src/backend/api/routes/
     // we want ./build-frontend/
-    var frontendRootPath = path.normalize(__dirname + "/../../../../../build-frontend/");
+    const frontendRootPath = path.normalize(__dirname + "/../../../../../build-frontend/");
     server.addStaticFileRoute("/chatty", frontendRootPath);
 };

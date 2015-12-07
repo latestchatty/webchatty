@@ -14,17 +14,19 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-import * as api from "../../../index";
-import * as spec from "../../../../spec/index";
+import * as api from "../../index";
+import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Post, "/v2/clientData/clearMarkedPosts", async (req) => {
+    server.addRoute(api.RequestMethod.Post, "/v2/getMessageCount", async (req) => {
         const query = new api.QueryParser(req);
-        const username = query.getString("username", 1, 50);
-        await server.clientDataConnector.clearMarkedPosts(username);
-        return { result: "success" };
+        const username = query.getString("username");
+        const password = query.getString("password");
+        const credentials = await server.verifyLogin(username, password);
+        const counts = await server.messageConnector.getMessageCount(credentials, spec.Mailbox.Inbox);
+        return counts;
     });
 };

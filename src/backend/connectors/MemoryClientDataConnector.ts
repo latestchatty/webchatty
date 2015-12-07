@@ -66,13 +66,13 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
     // Resolves a mapping of post IDs to MarkedPostTypes, one pair for each marked post.
     public async getMarkedPosts(username: string): Promise<Dictionary<number, spec.MarkedPostType>> {
         await this.checkUserExists(username);
-        var defaultDict = new Dictionary<number, spec.MarkedPostType>();
+        const defaultDict = new Dictionary<number, spec.MarkedPostType>();
         return this._markedPosts.lookup(username.toLowerCase(), defaultDict);
     }
     
     // Sets a marked post for this user.  Resolves true if it worked.
     public async setMarkedPost(username: string, postId: number, type: spec.MarkedPostType): Promise<boolean> {
-        var list = await this.getMarkedPosts(username);
+        const list = await this.getMarkedPosts(username);
         list.set(postId, type);
         return true;
     }
@@ -104,7 +104,7 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
     
     // Resolves true if the user exists.  Rejects with ERR_ARGUMENT if the user does not exist.
     private async checkUserExists(username: string): Promise<boolean> {
-        var exists = await this._server.accountConnector.userExists(username);
+        const exists = await this._server.accountConnector.userExists(username);
         if (exists) {
             return true;
         } else {

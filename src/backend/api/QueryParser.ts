@@ -31,7 +31,7 @@ export class QueryParser {
     }
     
     public getBoolean(name: string): boolean {
-        var value = this.get(name);
+        const value = this.get(name);
         if (value === "true") {
             return true;
         } else if (value === "false") {
@@ -51,12 +51,12 @@ export class QueryParser {
             max = 2147483647;
         }
         
-        var str = this.getString(name, 1, 10);
+        const str = this.getString(name, 1, 10);
         if (!integerRegEx.test(str)) {
             throw spec.apiError("ERR_ARGUMENT", util.format(
                 "The value for parameter \"%s\" must be an integer.", name));
         }
-        var num = parseFloat(str);
+        const num = parseFloat(str);
         if (num < min) {
             throw spec.apiError("ERR_ARGUMENT", util.format(
                 "The value for parameter \"%s\" must be greater than or equal to %d.", name, min));
@@ -75,7 +75,7 @@ export class QueryParser {
             maxLength = 2147483647;
         }
         
-        var value = this.get(name);
+        const value = this.get(name);
         if (value.length < minLength) {
             throw spec.apiError("ERR_ARGUMENT", util.format(
                 "The value for parameter \"%s\" must be at least %d character(s) long.", name, minLength));
@@ -101,7 +101,7 @@ export class QueryParser {
             maxStringLength = 2147483647;
         }
         
-        var list = this.get(name).split(",");
+        const list = this.get(name).split(",");
         
         if (list.length < minListCount) {
             throw spec.apiError("ERR_ARGUMENT", util.format(
@@ -129,6 +129,15 @@ export class QueryParser {
             case "collapsed": return spec.MarkedPostType.Collapsed;
             default: throw spec.apiError("ERR_ARGUMENT", util.format(
                 "The value for parameter \"%s\" must be: unmarked, pinned, or collapsed.", name));
+        }
+    }
+    
+    public getMailbox(name: string): spec.Mailbox {
+        switch (this.getString(name)) {
+            case "inbox": return spec.Mailbox.Inbox;
+            case "sent": return spec.Mailbox.Sent;
+            default: throw spec.apiError("ERR_ARGUMENT", util.format(
+                "The value for parameter \"%s\" must be: inbox or sent.", name));
         }
     }
     

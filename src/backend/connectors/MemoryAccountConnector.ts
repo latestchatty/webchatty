@@ -51,7 +51,7 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
     // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem
     // occurs other than the username/password being wrong.
     public async tryLogin(username: string, password: string): Promise<spec.UserCredentials> {
-        var account = this._accounts.lookup(username, null);
+        const account = this._accounts.lookup(username, null);
         if (account === null) {
             return <spec.UserCredentials>null; // wrong username
         } else if (account.password === password) {
@@ -63,7 +63,7 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
     
     /// Resolves true if the username exists (case insensitive), false if it does not.
     public async userExists(username: string): Promise<boolean> {
-        var usernameLower = username.toLowerCase();
+        const usernameLower = username.toLowerCase();
         return this._accounts.keys().some(x => x.toLowerCase() === usernameLower);
     }
     
@@ -73,10 +73,10 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
         if (typeof usernames === "undefined") {
             return Dictionary.fromArray(this._accounts.values(), x => x.username, x => x.registrationDate);
         } else {
-            var dict = new Dictionary<string, Date>();
+            const dict = new Dictionary<string, Date>();
             for (var i = 0; i < usernames.length; i++) {
-                var username = usernames[i];
-                var account = this._accounts.lookup(username, null);
+                const username = usernames[i];
+                const account = this._accounts.lookup(username, null);
                 if (account !== null) {
                     dict.set(username, account.registrationDate);
                 }

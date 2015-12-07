@@ -32,10 +32,10 @@ export class Dictionary<TKey, TValue> {
     
     public static fromArray<TSource, TKey, TValue>(source: TSource[], keySelector: (item: TSource) => TKey, 
             valueSelector: (item: TSource) => TValue) {
-        var dict = new Dictionary<TKey, TValue>();
+        const dict = new Dictionary<TKey, TValue>();
         for (var i = 0; i < source.length; i++) {
-            var key = keySelector(source[i]);
-            var value = valueSelector(source[i]);
+            const key = keySelector(source[i]);
+            const value = valueSelector(source[i]);
             dict.add(key, value); 
         }
         return dict;

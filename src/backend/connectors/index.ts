@@ -19,3 +19,4 @@
 
 export * from "./MemoryAccountConnector";
 export * from "./MemoryClientDataConnector";
+export * from "./MemoryMessageConnector";

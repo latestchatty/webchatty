@@ -22,10 +22,10 @@ import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
-        var query = new api.QueryParser(req);
-        var username = query.getString("username");
-        var password = query.getString("password");
-        var userCredentials = await server.accountConnector.tryLogin(username, password);
+        const query = new api.QueryParser(req);
+        const username = query.getString("username");
+        const password = query.getString("password");
+        const userCredentials = await server.accountConnector.tryLogin(username, password);
         if (userCredentials === null) {
             return {
                 isValid: false,
