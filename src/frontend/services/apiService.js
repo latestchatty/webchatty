@@ -8,7 +8,7 @@ angular.module('chatty')
                 password: password
             }
 
-            return post('https://winchatty.com/v2/verifyCredentials', params)
+            return post('../v2/verifyCredentials', params)
         }
 
         apiService.submitPost = function(username, password, parentId, body) {
@@ -19,27 +19,27 @@ angular.module('chatty')
                 text: body
             }
 
-            return post('https://winchatty.com/v2/postComment', params)
+            return post('../v2/postComment', params)
         }
 
         apiService.getNewestEventId = function() {
-            return $http.get('https://winchatty.com/v2/getNewestEventId')
+            return $http.get('../v2/getNewestEventId')
         }
 
         apiService.getChatty = function() {
-            return $http.get('https://winchatty.com/v2/getChatty')
+            return $http.get('../v2/getChatty')
         }
 
         apiService.getThread = function(threadId) {
-            return $http.get('https://winchatty.com/v2/getThread?id=' + threadId)
+            return $http.get('../v2/getThread?id=' + threadId)
         }
 
         apiService.waitForEvent = function(lastEventId) {
-            return $http.get('https://winchatty.com/v2/waitForEvent?lastEventId=' + lastEventId)
+            return $http.get('../v2/waitForEvent?lastEventId=' + lastEventId)
         }
 
         apiService.getMarkedPosts = function(username) {
-            return $http.get('https://winchatty.com/v2/clientData/getMarkedPosts?username=' + encodeURIComponent(username))
+            return $http.get('../v2/clientData/getMarkedPosts?username=' + encodeURIComponent(username))
         }
 
         apiService.markPost = function(username, postId, markType) {
@@ -48,7 +48,7 @@ angular.module('chatty')
                 postId: postId,
                 type: markType
             }
-            return post('https://winchatty.com/v2/clientData/markPost', params)
+            return post('../v2/clientData/markPost', params)
         }
 
         apiService.getTotalInboxCount = function(username, password) {
@@ -57,7 +57,7 @@ angular.module('chatty')
                 password: password
             }
 
-            return post('https://winchatty.com/v2/getMessageCount', opts)
+            return post('../v2/getMessageCount', opts)
         }
 
         apiService.getMessages = function(username, password) {
@@ -68,7 +68,7 @@ angular.module('chatty')
                 page: 1
             }
 
-            return post('https://winchatty.com/v2/getMessages', opts)
+            return post('../v2/getMessages', opts)
         }
 
         function post(url, params) {
