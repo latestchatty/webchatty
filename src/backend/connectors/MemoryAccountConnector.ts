@@ -27,13 +27,6 @@ export class MemoryUserAccount {
     password: string;
     registrationDate: Date;
     level: spec.UserAccessLevel;
-    
-    constructor(username: string, password: string, level: spec.UserAccessLevel, registrationDate: Date) {
-        this.username = username;
-        this.password = password;
-        this.level = level;
-        this.registrationDate = registrationDate;
-    }
 }
 
 export class MemoryAccountConnector implements spec.IAccountConnector {

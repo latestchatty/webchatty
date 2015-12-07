@@ -25,6 +25,6 @@ module.exports = function(server: api.Server) {
         const query = new api.QueryParser(req);
         const username = query.getString("username", 1, 50);
         const dict = await server.clientDataConnector.getMarkedPosts(username);
-        return { markedPosts: dict.pairs().map(x => <any>{ id: x.key, type: x.value }) };
+        return { markedPosts: dict.pairs().map(x => ({ id: x.key, type: x.value })) };
     });
 };

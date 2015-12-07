@@ -17,16 +17,36 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
+import { Dictionary } from "../../../collections/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/getUserRegistrationDate", async (req) => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getSubthread", async (req) => {
         const query = new api.QueryParser(req);
-        const usernames = query.getStringList("username", 1, 50);
-        const dict = await server.accountConnector.getUserRegistrationDates(usernames);
+        const postIds = query.getIntegerList("id", 1, 50, 1);
+        const posts = await server.threadConnector.getThreads(postIds);
+        const postsById = Dictionary.fromArray(posts, x => x.id, x => x);
+        
+        const selectedPostIdsBySubthread = lodash.map(postIds, postId => {
+            const selectedPostIds = new Dictionary<number, boolean>();
+            selectedPostIds.set(postId, true);
+            var oldSelectedCount: number;
+            do {
+                oldSelectedCount = selectedPostIds.count();
+                lodash.filter(posts, x => selectedPostIds.containsKey(x.parentId)).forEach(post => {
+                    selectedPostIds.set(post.id, true);
+                })
+            } while (oldSelectedCount != selectedPostIds.count());
+            return { subthreadId: postId, postIds: selectedPostIds.keys() };
+        });
+        
         return {
-            users: dict.pairs().map(x => ({ username: x.key, date: api.formatUtcDate(x.value) }))
+            subthreads: lodash.map(selectedPostIdsBySubthread, subthread => ({
+                subthreadId: subthread.subthreadId,
+                posts: lodash.map(subthread.postIds, postId => postsById.get(postId))
+            }))
         };
     });
 };

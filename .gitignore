@@ -7,3 +7,4 @@ coverage
 .c9/
 typings/
 npm-debug.log
+webchatty.log

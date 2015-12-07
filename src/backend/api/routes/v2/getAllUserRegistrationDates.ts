@@ -24,7 +24,7 @@ module.exports = function(server: api.Server) {
     server.addRoute(api.RequestMethod.Get, "/v2/getAllUserRegistrationDates", async (req) => {
         const dict = await server.accountConnector.getUserRegistrationDates();
         return {
-            users: dict.pairs().map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
+            users: dict.pairs().map(x => ({ username: x.key, date: api.formatUtcDate(x.value) }))
         };
     });
 };

@@ -28,7 +28,7 @@ module.exports = function(server: api.Server) {
         return {
             users: dict.pairs()
                 .filter(x => x.value.getTime() < tenYearsAgoMsec)
-                .map(x => <any>{ username: x.key, date: api.formatUtcDate(x.value) })
+                .map(x => ({ username: x.key, date: api.formatUtcDate(x.value) }))
         };
     });
 };

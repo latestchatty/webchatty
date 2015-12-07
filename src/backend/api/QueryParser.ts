@@ -17,6 +17,7 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as express from "express";
 import * as util from "util";
 import * as spec from "../spec/index";
@@ -67,6 +68,52 @@ export class QueryParser {
         return num;
     }
     
+    public getOptionalInteger(name: string, defaultValue: number, min?: number, max?: number): number {
+        return this.has(name) ? this.getInteger(name, min, max) : defaultValue;
+    }
+    
+    public getIntegerList(name: string, minListCount?: number, maxListCount?: number, min?: number, max?: number): number[] {
+        if (typeof minListCount === "undefined") {
+            minListCount = 1;
+        }
+        if (typeof maxListCount === "undefined") {
+            maxListCount = 2147483647;
+        }
+        if (typeof min === "undefined") {
+            min = 0;
+        }
+        if (typeof max === "undefined") {
+            max = 2147483647;
+        }
+        
+        const list = this.get(name).split(",");
+        
+        if (list.length < minListCount) {
+            throw spec.apiError("ERR_ARGUMENT", util.format(
+                "The comma-separated list \"%s\" must have at least %d item(s).", name, minListCount));
+        } else if (list.length > maxListCount) {
+            throw spec.apiError("ERR_ARGUMENT", util.format(
+                "The comma-separated list \"%s\" must have at most  %d item(s).", name, maxListCount));
+        }
+        
+        if (!list.every(x => integerRegEx.test(x))) {
+            throw spec.apiError("ERR_ARGUMENT", util.format(
+                "Each item in the comma-separated list \"%s\" must be an integer.", name));
+        }
+        
+        const numbers = lodash.map(list, parseInt);
+        
+        if (!numbers.every(x => x >= min)) {
+            throw spec.apiError("ERR_ARGUMENT", util.format(
+                "Each item in the comma-separated list \"%s\" must be greater than or equal to %d.", name, min));
+        } else if (!numbers.every(x => x <= max)) {
+            throw spec.apiError("ERR_ARGUMENT", util.format(
+                "Each item in the comma-separated list \"%s\" must be less than or equal to %d.", name, max));
+        }
+        
+        return numbers;        
+    }
+    
     public getString(name: string, minLength?: number, maxLength?: number): string {
         if (typeof minLength === "undefined") {
             minLength = 1;
@@ -84,6 +131,10 @@ export class QueryParser {
                 "The value for parameter \"%s\" must be at most %d character(s) long.", name, maxLength)); 
         }
         return value;
+    }
+    
+    public getOptionalString(name: string, defaultValue: string, minLength?: number, maxLength?: number): string {
+        return this.has(name) ? this.getString(name, minLength, maxLength) : defaultValue;
     }
     
     public getStringList(name: string, minListCount?: number, maxListCount?: number, minStringLength?: number, 
@@ -122,6 +173,20 @@ export class QueryParser {
         return list;
     }
     
+    public getDate(name: string): Date {
+        var date = Date.parse(this.getString(name));
+        if (isNaN(date)) {
+            throw spec.apiError("ERR_ARGUMENT", util.format(
+                "The value for parameter \"%s\" must be a valid date.", name));
+        } else {
+            return new Date(date);
+        }
+    }
+    
+    public getOptionalDate(name: string, defaultValue: Date): Date {
+        return this.has(name) ? this.getDate(name) : defaultValue;
+    }
+    
     public getMarkedPostType(name: string): spec.MarkedPostType {
         switch (this.getString(name)) {
             case "unmarked": return spec.MarkedPostType.Unmarked;
@@ -143,9 +208,9 @@ export class QueryParser {
     
     private has(name: string): boolean {
         if (this._req.method === "GET") {
-            return name in this._req.query;
+            return (name in this._req.query) && (this._req.query[name].toString() !== "");
         } else {
-            return name in this._req.body;
+            return (name in this._req.body) && (this._req.body[name].toString() !== "");
         }
     }
     

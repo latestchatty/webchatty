@@ -379,7 +379,7 @@ Response:
 Gets the number of posts in one or more threads, including the root post (i.e. the post count is always at least 1).
 
 Parameters:
-- `id=[INT+,200]` - One or more thread IDs.  Must be the root post of the thread.  If an ID is passed which isn't a thread root post, then it is silently omitted from the resulting list.
+- `id=[INT+,200]` - One or more thread IDs.  May be any post in the thread, not just the OP.
 
 Response:
 ```

@@ -45,6 +45,7 @@ export interface IServerConfiguration {
     accountConnector: spec.IAccountConnector;
     clientDataConnector: spec.IClientDataConnector;
     messageConnector: spec.IMessageConnector;
+    threadConnector: spec.IThreadConnector;
 }
 
 export enum RequestMethod {
@@ -59,13 +60,14 @@ export class Server {
     public accountConnector: spec.IAccountConnector;
     public clientDataConnector: spec.IClientDataConnector;
     public messageConnector: spec.IMessageConnector;
+    public threadConnector: spec.IThreadConnector;
     public dispatcher: api.Dispatcher = new api.Dispatcher();
     
     constructor(config: IServerConfiguration) {
         this.accountConnector = config.accountConnector;
         this.clientDataConnector = config.clientDataConnector;
         this.messageConnector = config.messageConnector;
-        
+        this.threadConnector = config.threadConnector;
         this._config = config;
         this._app = express();
         
@@ -113,6 +115,7 @@ export class Server {
         this.accountConnector.injectServer(this);
         this.clientDataConnector.injectServer(this);
         this.messageConnector.injectServer(this);
+        this.threadConnector.injectServer(this);
         this.dispatcher.injectServer(this);
         
         // load all of the routes in ./routes/ automatically by searching the filesystem for .js files

@@ -24,18 +24,31 @@ import * as webchatty from "./webchatty";
 
 webchatty.runServer({
     httpPort: 8080,
-    logFilePath: "/tmp/webchatty.log",
+    logFilePath: "./webchatty.log",
     logMaxFileSize: 5000000,
     logMaxFiles: 5,
     logUseJsonFormat: false,
     accountConnector: new webchatty.MemoryAccountConnector([
-        new webchatty.MemoryUserAccount(
-            "testuser", "userpass", webchatty.UserAccessLevel.User,  new Date("2014-02-03T11:15:00Z")),
-        new webchatty.MemoryUserAccount(
-            "testmod", "modpass", webchatty.UserAccessLevel.Moderator, new Date("2014-01-02T23:00:00Z")),
-        new webchatty.MemoryUserAccount(
-            "testadmin", "adminpass", webchatty.UserAccessLevel.Administrator, new Date("2004-01-01T15:30:11Z"))
+        {
+            username: "user",
+            password: "pass",
+            level: webchatty.UserAccessLevel.User,
+            registrationDate: new Date("2014-02-03T11:15:00Z") 
+        },
+        {
+            username: "mod",
+            password: "pass",
+            level: webchatty.UserAccessLevel.Moderator,
+            registrationDate: new Date("2014-01-02T23:00:00Z") 
+        },
+        {
+            username: "admin",
+            password: "pass",
+            level: webchatty.UserAccessLevel.Administrator,
+            registrationDate: new Date("2004-01-01T15:30:11Z") 
+        },
     ]),
     clientDataConnector: new webchatty.MemoryClientDataConnector(),
-    messageConnector: new webchatty.MemoryMessageConnector()
+    messageConnector: new webchatty.MemoryMessageConnector(),
+    threadConnector: new webchatty.MemoryThreadConnnector()
 });

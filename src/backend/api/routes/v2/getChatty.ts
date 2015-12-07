@@ -17,16 +17,29 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = function(server: api.Server) {
-    server.addRoute(api.RequestMethod.Get, "/v2/getUserRegistrationDate", async (req) => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getChatty", async (req) => {
         const query = new api.QueryParser(req);
-        const usernames = query.getStringList("username", 1, 50);
-        const dict = await server.accountConnector.getUserRegistrationDates(usernames);
+        const count = query.getOptionalInteger("count", 9999, 1, 9999);
+        const expiration = query.getOptionalInteger("expiration", 18, 1, 36);
+        const threadIds = await server.threadConnector.getActiveThreadIds(count, expiration);
+        const posts = await server.threadConnector.getThreads(threadIds);
+        const threads = lodash.groupBy(posts, x => x.threadId); // "threadId" -> Post[]
         return {
-            users: dict.pairs().map(x => ({ username: x.key, date: api.formatUtcDate(x.value) }))
+            threads: lodash
+                .chain(threads)
+                .map((threadPosts: spec.Post[]) => ({ 
+                    threadId: threadPosts[0].threadId, 
+                    posts: threadPosts, 
+                    newestPost: lodash.max(threadPosts, z => z.id) 
+                }))
+                .sortBy(x => -x.newestPost)
+                .map(x => ({ threadId: x.threadId, posts: x.posts }))
+                .value()
         };
     });
 };
