@@ -28,6 +28,10 @@ module.exports = function(server: api.Server) {
         const parentId = query.getInteger("parentId");
         const text = query.getString("text");
         const credentials = await server.verifyLogin(username, password);
+        const isBanned = await server.accountConnector.isUserBanned(username);
+        if (isBanned) {
+            return Promise.reject(spec.apiError("ERR_BANNED", "You are banned."));
+        }
         var newPostId = await server.threadConnector.postComment(credentials, parentId, text);
         return { result: "success", newPostId: newPostId };
     });

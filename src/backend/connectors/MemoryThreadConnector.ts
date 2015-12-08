@@ -70,7 +70,10 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
     }
     
     // Resolves the new post ID if it worked.  parentId may be 0 to post a new thread.
-    // May reject ERR_POST_RATE_LIMIT, ERR_BANNED, ERR_NUKED.  Or ERR_INVALID_PARENT if parentId does not exist.
+    // The caller has already verified that the user is not banned.
+    // May reject with ERR_POST_RATE_LIMIT, ERR_NUKED, ERR_INVALID_PARENT.
+    // The thread connector must arrange for the NewPost event to be sent.  The post body sent in the event data must 
+    // be in HTML (i.e. by calling spec.tagsToHtml(text)).
     public async postComment(credentials: spec.UserCredentials, parentId: number, text: string): Promise<number> {
         if (parentId !== 0 && !this._posts.containsKey(parentId)) {
             return Promise.reject<number>(spec.apiError("ERR_INVALID_PARENT", "parentId does not exist."));
@@ -100,7 +103,7 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
         
         this._server.dispatcher.sendEvent(spec.EventType.NewPost, {
             postId: newPostId,
-            post: post,
+            post: spec.postToHtml(post),
             parentAuthor: parentId === 0 ? "" : parentPost.author
         });
                 

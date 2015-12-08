@@ -30,7 +30,7 @@ module.exports = function(server: api.Server) {
         return {
             threads: lodash.map(threads, thread => ({
                 threadId: thread[0].threadId,
-                posts: thread
+                posts: lodash.map(thread, spec.postToHtml)
             }))
         };
     });

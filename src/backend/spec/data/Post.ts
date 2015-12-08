@@ -27,5 +27,16 @@ export class Post {
     category: spec.ModerationFlag;
     date: Date;
     body: string;
-    lols: spec.LolCount[]
+    lols: spec.LolCount[];
+}
+
+// converts the body text from shacktags to HTML 
+export function postToHtml(post: Post): HtmlPost {
+    const clone = Object.assign(new HtmlPost(), post);
+    clone.body = spec.tagsToHtml(post.body);
+    return clone;
+}
+
+// same as Post, except that the body has been converted to HTML format.
+export class HtmlPost extends Post {
 }

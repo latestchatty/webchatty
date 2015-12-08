@@ -35,4 +35,7 @@ export interface IAccountConnector {
     // Resolves a mapping of usernames to registration dates on success.  If usernames is not provided, then all users
     // are returned.  If a provided username does not exist, then it is silently omitted from the results.
     getUserRegistrationDates(usernames?: string[]): Promise<Dictionary<string, Date>>;
+    
+    // Resolves true if the username exists and the user is banned.  Resolves false otherwise.
+    isUserBanned(username: string): Promise<boolean>;
 }

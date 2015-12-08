@@ -77,4 +77,9 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
             return dict;
         }
     }
+    
+    // Resolves true if the username exists and the user is banned.  Resolves false otherwise.
+    public async isUserBanned(username: string): Promise<boolean> {
+        return false;
+    }
 }

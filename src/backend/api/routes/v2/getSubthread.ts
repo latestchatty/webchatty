@@ -45,7 +45,7 @@ module.exports = function(server: api.Server) {
         return {
             subthreads: lodash.map(selectedPostIdsBySubthread, subthread => ({
                 subthreadId: subthread.subthreadId,
-                posts: lodash.map(subthread.postIds, postId => postsById.get(postId))
+                posts: lodash.map(subthread.postIds, postId => spec.postToHtml(postsById.get(postId)))
             }))
         };
     });

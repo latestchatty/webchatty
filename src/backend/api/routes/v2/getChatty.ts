@@ -38,7 +38,7 @@ module.exports = function(server: api.Server) {
                     newestPost: lodash.max(threadPosts, z => z.id) 
                 }))
                 .sortBy(x => -x.newestPost)
-                .map(x => ({ threadId: x.threadId, posts: x.posts }))
+                .map(x => ({ threadId: x.threadId, posts: lodash.map(x.posts, spec.postToHtml) }))
                 .value()
         };
     });

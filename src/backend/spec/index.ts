@@ -23,3 +23,4 @@ export * from "./IAccountConnector";
 export * from "./IClientDataConnector";
 export * from "./IMessageConnector";
 export * from "./IThreadConnector";
+export * from "./tagsToHtml";

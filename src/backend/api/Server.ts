@@ -153,14 +153,17 @@ export class Server {
                 })
                 .catch(ex => {
                     if (ex instanceof Error) {
-                        var error = <Error>ex;
-                        var code = error.name.substr(0, 4) === "ERR_" ? error.name : "ERR_SERVER";
+                        const error = <Error>ex;
+                        const code = error.name.substr(0, 4) === "ERR_" ? error.name : "ERR_SERVER";
                         res.status(code === "ERR_SERVER" ? 500 : 400);
                         res.send({
                             error: true,
                             code: code,
                             message: error.message
                         });
+                        if (code === "ERR_SERVER") {
+                            this.log("error", (ex.name || "???") + " -- " + (ex.message || "???"));
+                        }
                     } else {
                         res.status(500);
                         res.send({
@@ -168,6 +171,7 @@ export class Server {
                             code: "ERR_SERVER",
                             message: ex.toString()
                         })
+                        this.log("error", ex.toString());
                     }
                 });
         };
@@ -210,3 +214,4 @@ function findFilesSyncCore(dir: string, resultArray: string[]): void {
         }
     });
 }
+

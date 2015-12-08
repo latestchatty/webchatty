@@ -64,7 +64,7 @@ module.exports = function(server: api.Server) {
                     date: x.post.date,
                     author: x.post.author,
                     category: x.post.category,
-                    body: x.post.body,
+                    body: spec.tagsToHtml(x.post.body),
                     postCount: x.postCount,
                     isParticipant: x.isParticipant
                 }))
