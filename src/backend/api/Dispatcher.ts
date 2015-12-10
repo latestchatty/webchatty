@@ -17,13 +17,15 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "./index";
 import * as spec from "../spec/index";
 
 const MAX_RETAINED_EVENTS = 10000;
 
 interface IEventWaiter {
-    (events: spec.Event[]): void;
+    expirationMsec: number;
+    resolve(events: spec.Event[]): void;
 };
 
 export class Dispatcher {
@@ -34,6 +36,20 @@ export class Dispatcher {
     
     public injectServer(server: api.Server): void {
         this._server = server;
+        
+        // every 2.5 seconds, prune the list of event waiters according to their expiration time
+        // a pruned event waiter will receive an empty list of events and a friendly invitation
+        // to try again
+        setInterval(() => {
+            const now = new Date().getTime();
+            this._eventWaiters.forEach(waiter => {
+                if (waiter.expirationMsec <= now) {
+                    waiter.resolve([]);
+                    waiter.resolve = null;
+                }
+            });
+            this._eventWaiters = lodash.filter(this._eventWaiters, x => x.resolve !== null);
+        }, 2500).unref();
     }
     
     public sendEvent(type: spec.EventType, data: spec.IEventData): void {
@@ -53,7 +69,11 @@ export class Dispatcher {
         
         // notify all waiting callers
         this._eventWaiters.forEach(waiter => {
-            waiter([event]);
+            // some of the waiters may have timed out, in which case their resolve function is null
+            // because we already sent a response
+            if (waiter.resolve !== null) {
+                waiter.resolve([event]);
+            }
         });
         this._eventWaiters = [];
         
@@ -82,8 +102,9 @@ export class Dispatcher {
         }
         
         return new Promise((resolve, reject) => {
-            this._eventWaiters.push(events => {
-                resolve(events);
+            this._eventWaiters.push({
+                expirationMsec: new Date().getTime() + 20000, // 20 seconds
+                resolve: resolve
             });
         });
     }
