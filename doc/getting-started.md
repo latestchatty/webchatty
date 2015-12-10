@@ -14,7 +14,9 @@
 TODO
 
 ## For WebChatty developers
-You need `git` and `npm`.  Use your operating system's package manager to get them.
+You need `git` and `node`.  Node v4 is required, which may be newer than what your operating system's package
+manager has.  NodeSource.com has up-to-date Ubuntu packages, and for other platforms you can get an installer
+from Node themselves.
 
 First, clone the webchatty repository.  (If you want, fork the repository on GitHub first, and then substitute your 
 forked repository below.)
