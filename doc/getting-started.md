@@ -14,6 +14,9 @@
 TODO
 
 ## For WebChatty developers
+The following video demonstrates the installation steps. (Click to view on YouTube)
+[![WebChatty developer installation video](http://i.imgur.com/s0QowCp.jpg)](https://www.youtube.com/watch?v=OQ-Fpt_tWmw)
+
 You need `git`, `node`, and `npm`.  Node v4 is required, which may be newer than what your operating system's package manager has.  NodeSource.com has up-to-date Ubuntu packages, and for other platforms you can get an installer from Node themselves.
 
 If you are running Ubuntu, the following commands will install these prerequisites.
