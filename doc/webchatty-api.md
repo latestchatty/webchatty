@@ -82,13 +82,11 @@
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
-This documents the WebChatty API, a backend web service for a chatty-style forum.  This API supports [Lamp](http://shackwiki.com/wiki/Lamp), [Shack Browse](https://play.google.com/store/apps/details?id=net.woggle.shackbrowse&hl=en), [NiXXeD/chatty](https://github.com/NiXXeD/chatty), and other clients.
+This documents the WebChatty API, a backend web service for a chatty-style forum.
 
-This API implements versions 1 and 2 of the WinChatty API, allowing it to support preexisting clients of that API.  WinChatty-compatible methods begin with /v1/ and /v2/, respectively.  New WebChatty methods will be added with a /v3/ prefix.  
+This API implements versions 1 and 2 of the WinChatty API, allowing it to support preexisting clients of that API.  WinChatty-compatible methods begin with /v1/ and /v2/, respectively.  New WebChatty methods will be added with a /v3/ prefix.
 
 ### Protocols
-The API operates via HTTP or HTTPS.  The client may choose either one, but there's little reason to use HTTP.  I recommend using HTTPS for everything except high-latency cellular connections.  All responses are JSON.
-
 Client applications should be configured to use GZIP compression and verify SSL certificates.  These are both very important, but GZIP compression especially so.  On average GZIP cuts the size of responses down by 75%.  Try calling [/v2/checkConnection](#get-v2checkconnection) to verify that you are correctly using GZIP and SSL.
 
 > **libcurl**   
@@ -106,17 +104,7 @@ Client applications should be configured to use GZIP compression and verify SSL 
 > **iOS / OS X**   
 > Based on some quick Google searches, I think [NSURLConnection](https://developer.apple.com/library/mac/documentation/Cocoa/Reference/Foundation/Classes/NSURLConnection_Class/Reference/Reference.html) verifies SSL certificates by default and blows up in some way if the certificate is invalid.  I think you have to add the "Accept-Encoding" header in order to support GZIP compression (see [this StackOverflow answer](http://stackoverflow.com/a/2683986) for the code).
 
-The v2 API does not use cookies; likewise it does not use PHP sessions.
-
-The v2 API does not use HTTP authentication.  Usernames and passwords, when applicable, are passed via POST arguments.  It is highly recommended that HTTPS be used so that usernames and passwords are not transmitted in plain text.  You may wish to use HTTP for requests where passwords are not transmitted; in mobile clients on cellular networks, the SSL handshaking can add a significant amount of latency.
-
-Besides making the API easier to use, I believe the aforementioned restrictions on cookies and authentication are required when using [CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing) to allow access from all domains.  The API returns the header `Access-Control-Allow-Origin: *`.  The [W3C documentation for CORS](http://www.w3.org/TR/cors/#resource-requests) states:
-
-- ["The string "*" cannot be used for a resource that supports credentials."](http://www.w3.org/TR/cors/#resource-requests)
-
-- ["A supports credentials flag that indicates whether the resource supports user credentials in the request."](http://www.w3.org/TR/cors/#supports-credentials)
-
-- ["The term user credentials for the purposes of this specification means cookies, HTTP authentication, and client-side SSL certificates that would be sent based on the user agent's previous interactions with the origin."](http://www.w3.org/TR/cors/#user-credentials)
+The v2 API uses neither cookies nor HTTP authentication.  Usernames and passwords, when applicable, are passed via POST arguments.  It is highly recommended that HTTPS be used so that usernames and passwords are not transmitted in plain text.  You may wish to use HTTP for requests where passwords are not transmitted; in mobile clients on cellular networks, the SSL handshaking can add a significant amount of latency.
 
 ### Data Types
 In order to precisely define the accepted inputs (query parameters) and the expected outputs (JSON) of the v2 API methods, the following data type shorthands are defined.  Most types appear in both query parameters and JSON responses, but a few only appear in JSON responses.
@@ -247,10 +235,10 @@ If an API call results in an error, it is returned in the following JSON structu
 ```
 The documentation for each API call lists which error codes are possible.  The following two error codes are possible on any API call, and are thus not listed on each individual call.  In both cases it is recommended that the client simply display the error message and then cancel whatever operation caused it.
 
-Error code | Description
---- | ---
-`ERR_SERVER` | Unexpected error.  Could be a communications failure, server outage, exception, etc.  The client did not do anything wrong.
-`ERR_ARGUMENT` | Invalid argument.  The client passed an argument value that violates a documented constraint.  The client contains a bug.
+HTTP status | Error code | Description
+--- | --- | ---
+500 | `ERR_SERVER` | Unexpected error.  Could be a communications failure, server outage, exception, etc.  The client did not do anything wrong.
+400 | `ERR_ARGUMENT` | Invalid argument.  The client passed an argument value that violates a documented constraint.  The client contains a bug.
 
 ### Client Implementation Guide
 These are general guidelines to follow when implementing a "full featured" client based on the v2 API.  Feel free to pick and choose based on your client's unique needs.  All of the API calls are designed to stand alone, as well as work in conjunction with the others.
@@ -544,12 +532,10 @@ Response:
 ```
 
 ### POST /v2/requestReindex
-Requests a reindex of a specified post.  This is used when implementing moderator support.  When the moderator nukes or flags a post, the client should call this method to notify the server about the change.  This ensures that the database is immediately updated.  Otherwise, it may take some time for the database to be updated.
-
-This post blocks until the post has been reindexed.  Push-based clients will receive an event about the change.  Poll-based clients can refresh the thread after the call returns.
+**Deprecated.**  This call does nothing but return success.
 
 Parameters:
-- `postId=[INT]` - Post ID.
+- None.
 
 Response
 ```
@@ -559,7 +545,7 @@ Response
 ```
 
 ### POST /v2/setPostCategory
-For moderators, sets the category (moderation flag) of a post.  This automatically triggers a reindex of the post; you do not need to call requestReindex afterwards.
+For moderators, sets the category (moderation flag) of a post.
 
 Parameters:
 - `username=[STR]` - Username.
@@ -998,7 +984,7 @@ There are three paths for implementing notifications, described below.
 - Simple desktop notifier clients, which receive notifications via long-polling and use web-based login:
   - Upon installation (or upon demand), generate a GUID to represent that client installation and save it forever.
   - Call /v2/notifications/registerNotifierClient at startup.
-  - Call /v2/notifications/waitForNotification in a loop.  If ERR_CLIENT_NOT_ASSOCIATED is returned, then open https://winchatty.com/v2/notifications/ui/login?clientId=(_____) in the browser, inserting the client GUID into the query string.  Wait for the user to finish logging in, which associates the account, then continue to loop.
+  - Call /v2/notifications/waitForNotification in a loop.  If ERR_CLIENT_NOT_ASSOCIATED is returned, then open /v2/notifications/ui/login?clientId=(_____) in the browser, inserting the client GUID into the query string.  Wait for the user to finish logging in, which associates the account, then continue to loop.
 - Rich desktop clients, which receive notifications via long-polling and use their own login:
   - Upon installation (or upon demand), generate a GUID to represent that client installation and save it forever.
   - Call /v2/notifications/registerRichClient when the user enables notifications.
@@ -1011,7 +997,7 @@ There are three paths for implementing notifications, described below.
   - Call /v2/notifications/detachAccount when the user disables notifications.
 
 In order to configure the user's notifications, there are two options:
-- Web-based interface at https://winchatty.com/v2/notifications/ui/configure - Very easy to implement and provides full functionality, but cannot be customized in any way.  Simply point the user's browser at that page.
+- Web-based interface at /v2/notifications/ui/configure - Very easy to implement and provides full functionality, but cannot be customized in any way.  Simply point the user's browser at that page.
 - Custom native interface – More work, requiring the use of additional API calls, but permits maximum control over the user experience.
 
 ### GET /v2/notifications/generateId
@@ -1032,7 +1018,7 @@ Registers a brand new installation of a simple notifier client.  This only needs
 
 After the client has been registered, it needs to be attached to a site account.  When using this method to register the client, the client must open the web browser to the following URL to present the user with an attachment and setup interface:
 
-https://winchatty.com/v2/notifications/ui/login?clientId={0}
+https://example.com/v2/notifications/ui/login?clientId={0}
 
 {0} should be replaced with the client's GUID in the above URL.  Once the account is attached, the notifier may begin calling waitForNotification to listen for notifications.  waitForNotification will return an error if the client is not attached to an account.
 
@@ -1089,10 +1075,6 @@ Errors:
 
 ### POST /v2/notifications/waitForNotification
 Block until a new notification is ready, or until an internal timeout expires.  In the latter case, zero messages will be returned in the response.
-
-To avoid per-host concurrent connection limits in some HTTP APIs (notably including WinInet), it is recommended that this method be called using the following URL, which contains a different hostname than the v2 API normally uses.  The use of a different hostname ensures that the connection won't be counted against the winchatty.com connection limit.  SSL is not available with this hostname.
-
-http://*notifications*.winchatty.com/v2/notifications/waitForNotification
 
 Parameters:
 - `clientId=[STR]` - Client GUID.
