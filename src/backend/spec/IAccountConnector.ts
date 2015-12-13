@@ -25,6 +25,9 @@ export interface IAccountConnector {
     // Called by the server at startup to provide the connector with a reference to the server instance.
     injectServer(server: api.Server): void;
     
+    // Called when the server is about to start listening for requests.
+    start(): Promise<void>;
+    
     // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem
     // occurs other than the username/password being wrong.
     tryLogin(username: string, password: string): Promise<spec.UserCredentials>;

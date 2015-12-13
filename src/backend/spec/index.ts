@@ -19,8 +19,12 @@
 
 export * from "./data/index";
 export * from "./apiError";
+export * from "./getWordStem";
 export * from "./IAccountConnector";
 export * from "./IClientDataConnector";
 export * from "./IMessageConnector";
+export * from "./ISearchConnector";
 export * from "./IThreadConnector";
+export * from "./Signal";
+export * from "./stripHtmlTags";
 export * from "./tagsToHtml";

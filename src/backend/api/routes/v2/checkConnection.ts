@@ -20,7 +20,7 @@
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/checkConnection", async (req) => {
         if (!req.headers.hasOwnProperty("accept-encoding") || req.headers["accept-encoding"].indexOf("gzip") === -1) {
             return Promise.reject(spec.apiError("ERR_NOT_USING_GZIP", "Accept-Encoding does not contain \"gzip\"."));

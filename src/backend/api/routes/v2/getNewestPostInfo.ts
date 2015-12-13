@@ -17,25 +17,25 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
-        const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
+    server.addRoute(api.RequestMethod.Get, "/v2/getNewestPostInfo", async (req) => {
+        const postId = await server.threadConnector.getNewestPostId();
+        if (postId === 0) {
+            // no posts at all yet
+            return { id: 0, date: new Date(0) }
         } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
+            const post = await server.threadConnector.getPostRange(postId, 1, false);
+            if (post.length > 0) {
+                return { id: postId, date: post[0].date };
+            } else {
+                // response from the thread connector doesn't make sense.  if this is the newest post ID, then we 
+                // should be able to read it (even if it's nuked).
+                return Promise.reject(spec.apiError("ERR_SERVER", "Unable to find the newest post."));
+            }
         }
     });
 };

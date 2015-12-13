@@ -43,6 +43,10 @@ export class QueryParser {
         }
     }
     
+    public getOptionalBoolean(name: string, defaultValue: boolean): boolean {
+        return this.has(name) ? this.getBoolean(name) : defaultValue;
+    }
+    
     // unsigned 31-decimal integer 0..2147483647
     public getInteger(name: string, min?: number, max?: number): number {
         if (typeof min === "undefined") {
@@ -204,6 +208,24 @@ export class QueryParser {
             default: throw spec.apiError("ERR_ARGUMENT", util.format(
                 "The value for parameter \"%s\" must be: inbox or sent.", name));
         }
+    }
+    
+    public getModerationFlag(name: string): spec.ModerationFlag {
+        switch (this.getString(name)) {
+            case "ontopic": return spec.ModerationFlag.OnTopic;
+            case "nws": return spec.ModerationFlag.NotWorkSafe;
+            case "stupid": return spec.ModerationFlag.Stupid;
+            case "political": return spec.ModerationFlag.PoliticalReligious;
+            case "tangent": return spec.ModerationFlag.Tangent;
+            case "informative": return spec.ModerationFlag.Informative;
+            case "nuked": return spec.ModerationFlag.Nuked;
+            default: throw spec.apiError("ERR_ARGUMENT", util.format(
+                "The value for parameter \"%s\" must be: ontopic, nws, stupid, political, tangent, informative, or nuked.", name));
+        }
+    }
+    
+    public getOptionalModerationFlag(name: string, defaultValue: spec.ModerationFlag): spec.ModerationFlag {
+        return this.has(name) ? this.getModerationFlag(name) : defaultValue;
     }
     
     private has(name: string): boolean {

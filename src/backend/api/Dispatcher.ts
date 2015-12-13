@@ -21,7 +21,8 @@ import * as lodash from "lodash";
 import * as api from "./index";
 import * as spec from "../spec/index";
 
-const MAX_RETAINED_EVENTS = 10000;
+const MAX_EVENTS = 11000;
+const PRUNE_EVENTS = 10000;
 
 interface IEventWaiter {
     expirationMsec: number;
@@ -33,6 +34,10 @@ export class Dispatcher {
     private _nextId: number = 1;
     private _events: spec.Event[] = []; 
     private _eventWaiters: IEventWaiter[] = [];
+    private _sendQueue: spec.Event[] = [];
+    private _wakeMessageLoop: () => void; // call this when pushing onto sendQueue
+    
+    public newEventSignal: spec.Signal<spec.Event> = new spec.Signal<spec.Event>();
     
     public injectServer(server: api.Server): void {
         this._server = server;
@@ -50,34 +55,76 @@ export class Dispatcher {
             });
             this._eventWaiters = lodash.filter(this._eventWaiters, x => x.resolve !== null);
         }, 2500).unref();
+        
+        this.startMessageLoop();
     }
     
-    public sendEvent(type: spec.EventType, data: spec.IEventData): void {
-        // store the event at the end of the _events array
+    private startMessageLoop(): void {
+        this.messageLoop()
+            .then(() => {
+                return this.messageLoop();
+            })
+            .catch(ex => {
+                this._server.log("error", "Message loop error: " + ex.toString() + " -- " + (ex instanceof Error ? ex.stack : ""));
+                this.startMessageLoop();
+            });
+    }
+    
+    public async sendEvent(type: spec.EventType, data: spec.IEventData): Promise<void> {
         const event = {
             eventId: this._nextId++,
             eventType: type,
             eventData: data,
             eventDate: new Date()
         };
-        this._events.push(event);
-        
-        // delete the oldest events so we're under the preset limit
-        while (this._events.length > MAX_RETAINED_EVENTS) {
-            this._events.shift();
-        }
-        
-        // notify all waiting callers
-        this._eventWaiters.forEach(waiter => {
-            // some of the waiters may have timed out, in which case their resolve function is null
-            // because we already sent a response
-            if (waiter.resolve !== null) {
-                waiter.resolve([event]);
-            }
+        this._sendQueue.push(event);
+        this._wakeMessageLoop();
+    }
+
+    private sleep(): Promise<void> {
+        var didResolve = false;
+        return new Promise<void>((resolve, reject) => {
+            // when a new event comes in, this function will be called which will resolve the sleep() promise.
+            this._wakeMessageLoop = () => {
+                if (!didResolve) {
+                    didResolve = true;
+                    resolve();
+                }
+            };
         });
-        this._eventWaiters = [];
-        
-        this._server.log("verbose", "Event #" + event.eventId + ": " + event.eventType);
+    }
+
+    // this ensures that the asynchronous process of sending an event is not interrupted when a new event shows up.
+    // we process each event fully before moving on to the next queued event.
+    private async messageLoop(): Promise<void> {
+        while (true) {
+            while (this._sendQueue.length === 0) {
+                await this.sleep();
+            }
+            
+            const event = this._sendQueue.shift();
+            this._events.push(event);
+            
+            // if we trip the maximum, then delete the oldest events so we're under the prune limit
+            if (this._events.length > MAX_EVENTS) {
+                this._events = lodash.slice(this._events, this._events.length - PRUNE_EVENTS);
+            }
+            
+            // notify all waiting waitForEvent() callers
+            this._eventWaiters.forEach(waiter => {
+                // some of the waiters may have timed out, in which case their resolve function is null
+                // because we already sent a response
+                if (waiter.resolve !== null) {
+                    waiter.resolve([event]);
+                }
+            });
+            this._eventWaiters = [];
+            
+            // this may trigger, e.g., a search index rebuild which could take some time.
+            await this.newEventSignal.send(event);
+            
+            this._server.log("verbose", "Event #" + event.eventId + ": " + event.eventType);
+        }
     }
     
     public pollForEvent(lastEventId: number): spec.Event[] {

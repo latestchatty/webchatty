@@ -40,6 +40,10 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
         this._server = server;
     }
     
+    // Called when the server is about to start listening for requests.
+    public async start(): Promise<void> {
+    }
+    
     // Gets the list of recently bumped threads, starting with the most recently bumped.  Only non-expired threads
     // are included.  Up to "maxThreads" of the most recent threads are returned.  "expirationHours" is the number of
     // hours to retain a thread in this list.
@@ -101,7 +105,7 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
             this._threads.filter(x => x.threadId === post.threadId)[0].newestId = newPostId;
         }
         
-        this._server.dispatcher.sendEvent(spec.EventType.NewPost, {
+        await this._server.dispatcher.sendEvent(spec.EventType.NewPost, {
             postId: newPostId,
             post: spec.postToHtml(post),
             parentAuthor: parentId === 0 ? "" : parentPost.author
@@ -109,4 +113,40 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
                 
         return newPostId;
     }
+    
+    // Resolves the newest post ID in the database, or 0 if there are no posts.  The newest post may be nuked.
+    public async getNewestPostId(): Promise<number> {
+        return this._nextId - 1;
+    }
+    
+    // Gets a consecutive range of posts, omitting nuked posts.  Nuked posts are excluded, and do not count towards
+    //  the maximum 'count'. startId is inclusive.
+    public async getPostRange(startId: number, count: number, reverse: boolean): Promise<spec.Post[]> {
+        const list: spec.Post[] = [];
+        for (var id = startId; id > 0 && id < this._nextId && list.length < count; id += (reverse ? -1 : 1)) {
+            const post = this._posts.lookup(id, null);
+            if (post !== null && post.category !== spec.ModerationFlag.Nuked) {
+                list.push(post);
+            }
+        }
+        return list;
+    }
+    
+    // Moderator-only action that changes a post's category.  The caller has verified that the user is a moderator.
+    // Rejects with ERR_INVALID_POST if the post ID does not exist.
+    // The thread connector must arrange for the CategoryChange event to be sent.
+    public async setPostCategory(postId: number, category: spec.ModerationFlag): Promise<void> {
+        const post = this._posts.lookup(postId, null);
+        if (post === null) {
+            return Promise.reject<void>(spec.apiError("ERR_INVALID_POST", "Post ID does not exist."));
+        } else {
+            post.category = category;
+            
+            await this._server.dispatcher.sendEvent(spec.EventType.CategoryChange, {
+                postId: postId,
+                category: category
+            });
+        }
+    }
+    
 }

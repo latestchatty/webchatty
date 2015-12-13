@@ -17,25 +17,17 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getPostRange", async (req) => {
         const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
-        }
+        const startId = query.getInteger("startId");
+        const count = query.getInteger("count", 1, 1000);
+        const reverse = query.getOptionalBoolean("reverse", false);
+        const posts = await server.threadConnector.getPostRange(startId, count, reverse);
+        return { posts: lodash.map(posts, spec.postToHtml) };
     });
 };

@@ -18,3 +18,5 @@
 "use strict";
 
 export * from "./Dictionary";
+export * from "./DictionaryWithDefault";
+export * from "./Set";

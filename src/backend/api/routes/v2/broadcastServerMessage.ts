@@ -20,7 +20,7 @@
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Post, "/v2/broadcastServerMessage", async (req) => {
         const query = new api.QueryParser(req);
         const username = query.getString("username");
@@ -33,7 +33,7 @@ module.exports = function(server: api.Server) {
         
         const data = new spec.ServerMessageEventData();
         data.message = message;
-        server.dispatcher.sendEvent(spec.EventType.ServerMessage, data);
+        await server.dispatcher.sendEvent(spec.EventType.ServerMessage, data);
         
         return { result: "success" };
     }); 

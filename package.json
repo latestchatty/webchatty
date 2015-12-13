@@ -18,7 +18,9 @@
         "pg": "^4.4.1",
         "mysql": "^2.8.0",
         "body-parser": "^1.14.1",
-        "lodash": "^3.10.1"
+        "lodash": "^3.10.1",
+        "stemmer": "^0.1.4",
+        "striptags": "^2.0.4"
     },
     "devDependencies": {
         "typescript": "^1.7.3",

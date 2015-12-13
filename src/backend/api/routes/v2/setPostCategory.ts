@@ -21,21 +21,24 @@ import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
+    server.addRoute(api.RequestMethod.Post, "/v2/setPostCategory", async (req) => {
         const query = new api.QueryParser(req);
         const username = query.getString("username");
         const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
+        const postId = query.getInteger("postId");
+        const category = query.getModerationFlag("category");
+        
+        const credentials = await server.verifyLogin(username, password);
+        if (credentials.level < spec.UserAccessLevel.Moderator) {
+            return Promise.reject(spec.apiError("ERR_NOT_MODERATOR", "Please provide moderator credentials."));
         }
+        
+        const posts = await server.threadConnector.getPostRange(postId, 1, false);
+        if (posts.length !== 1) {
+            return Promise.reject(spec.apiError("ERR_INVALID_POST", "The post was not found."));
+        }
+        
+        await server.threadConnector.setPostCategory(postId, category);
+        return { result: "success" };
     });
 };

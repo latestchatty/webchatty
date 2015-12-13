@@ -22,7 +22,7 @@ import * as webchatty from "./webchatty";
 // This runs the WebChatty server with dummy settings and an in-memory database.
 // It's useful for development, and this file serves as an example for how the webchatty server is invoked.
 
-webchatty.runServer({
+const server = new webchatty.Server({
     httpPort: 8080,
     logFilePath: "./webchatty.log",
     logMaxFileSize: 5000000,
@@ -50,5 +50,13 @@ webchatty.runServer({
     ]),
     clientDataConnector: new webchatty.MemoryClientDataConnector(),
     messageConnector: new webchatty.MemoryMessageConnector(),
-    threadConnector: new webchatty.MemoryThreadConnnector()
+    threadConnector: new webchatty.MemoryThreadConnnector(),
+    searchConnector: new webchatty.MemorySearchConnector({
+        maxPosts: 51000,
+        prunePosts: 50000
+    })
 });
+
+// the express app is exposed as server.app for custom routes
+
+server.run();

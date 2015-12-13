@@ -42,6 +42,10 @@ export class MemoryClientDataConnector implements spec.IClientDataConnector {
         this._server = server;
     }
     
+    // Called when the server is about to start listening for requests.
+    public async start(): Promise<void> {
+    }
+    
     // Resolves a list of moderation flags that the user has selected to show.  If the user has never set flag filters,
     // then a default set of filters are returned.
     public async getModerationFlagFilters(username: string): Promise<spec.ModerationFlag[]> {

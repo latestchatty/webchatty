@@ -20,7 +20,7 @@
 import * as api from "../../../index";
 import * as spec from "../../../../spec/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Post, "/v2/clientData/clearMarkedPosts", async (req) => {
         const query = new api.QueryParser(req);
         const username = query.getString("username", 1, 50);

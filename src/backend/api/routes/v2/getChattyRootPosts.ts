@@ -22,7 +22,7 @@ import * as api from "../../index";
 import * as spec from "../../../spec/index";
 import { Dictionary } from "../../../collections/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getChattyRootPosts", async (req) => {
         const query = new api.QueryParser(req);
         const offset = query.getOptionalInteger("offset", 0);

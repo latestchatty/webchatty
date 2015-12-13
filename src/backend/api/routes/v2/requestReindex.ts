@@ -18,24 +18,9 @@
 "use strict";
 
 import * as api from "../../index";
-import * as spec from "../../../spec/index";
 
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
-        const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
-        }
+    server.addRoute(api.RequestMethod.Post, "/v2/requestReindex", async (req) => {
+        return { result: "success" };
     });
 };

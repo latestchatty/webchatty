@@ -22,7 +22,7 @@ import * as api from "../../index";
 import * as spec from "../../../spec/index";
 import { Dictionary } from "../../../collections/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getSubthread", async (req) => {
         const query = new api.QueryParser(req);
         const postIds = query.getIntegerList("id", 1, 50, 1);

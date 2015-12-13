@@ -14,28 +14,22 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <reference path="../../../typings/tsd.d.ts" />
 "use strict";
 
-import * as api from "../../index";
-import * as spec from "../../../spec/index";
+import * as api from "../api/index";
+import * as spec from "./index";
+import { Dictionary } from "../collections/index";
 
-module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
-        const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
-        }
-    });
-};
+export interface ISearchConnector {
+    // Called by the server at startup to provide the connector with a reference to the server instance.
+    injectServer(server: api.Server): void;
+    
+    // Called when the server is about to start listening for requests.
+    start(): Promise<void>;
+    
+    // Comment search. At least one of [terms, author, parentAuthor, category] will be provided and the others are null 
+    // (caller verified).
+    search(terms: string, author: string, parentAuthor: string, category: spec.ModerationFlag, offset: number, 
+        limit: number, oldestFirst: boolean): Promise<spec.Post[]>;
+}

@@ -38,7 +38,10 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
     
     // Called by the server at startup to provide the connector with a reference to the server instance.
     public injectServer(server: api.Server): void {
-        // we don't care about the server reference
+    }
+    
+    // Called when the server is about to start listening for requests.
+    public async start(): Promise<void> {
     }
     
     // Resolves a token on successful login.  Resolves null if the username/password are wrong.  Rejects if a problem

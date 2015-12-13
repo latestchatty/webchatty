@@ -25,6 +25,9 @@ export interface IThreadConnector {
     // Called by the server at startup to provide the connector with a reference to the server instance.
     injectServer(server: api.Server): void;
     
+    // Called when the server is about to start listening for requests.
+    start(): Promise<void>;
+    
     // Gets the list of recently bumped threads, starting with the most recently bumped.  Only non-expired threads
     // are included.  Up to "maxThreads" of the most recent threads are returned.  "expirationHours" is the number of
     // hours to retain a thread in this list.
@@ -41,4 +44,16 @@ export interface IThreadConnector {
     // The thread connector must arrange for the NewPost event to be sent.  The post body sent in the event data must 
     // be in HTML (i.e. by calling spec.tagsToHtml(text)).
     postComment(credentials: spec.UserCredentials, parentId: number, text: string): Promise<number>;
+    
+    // Resolves the newest post ID in the database, or 0 if there are no posts.  The newest post may be nuked.
+    getNewestPostId(): Promise<number>;
+    
+    // Gets a consecutive range of posts, omitting nuked posts.  Nuked posts are excluded, and do not count towards
+    //  the maximum 'count'. startId is inclusive.
+    getPostRange(startId: number, count: number, reverse: boolean): Promise<spec.Post[]>;
+    
+    // Moderator-only action that changes a post's category.  The caller has verified that the user is a moderator.
+    // Rejects with ERR_INVALID_POST if the post ID does not exist.
+    // The thread connector must arrange for the CategoryChange event to be sent.
+    setPostCategory(postId: number, category: spec.ModerationFlag): Promise<void>;
 }

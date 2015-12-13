@@ -22,7 +22,7 @@ import * as spec from "../../../spec/index";
 
 const MESSAGES_PER_PAGE = 50;
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Post, "/v2/getMessages", async (req) => {
         const query = new api.QueryParser(req);
         const username = query.getString("username");

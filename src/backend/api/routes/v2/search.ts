@@ -17,25 +17,35 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
+import { Dictionary } from "../../../collections/index";
+
+function emptyToNull(str: string): string {
+    return str === "" ? null : str;
+}
 
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
+    server.addRoute(api.RequestMethod.Get, "/v2/search", async (req) => {
         const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
+        const terms = emptyToNull(query.getOptionalString("terms", "").trim());
+        const author = emptyToNull(query.getOptionalString("author", "").trim());
+        const parentAuthor = emptyToNull(query.getOptionalString("parentAuthor", "").trim());
+        const category = query.getOptionalModerationFlag("category", null);
+        const offset = query.getOptionalInteger("offset", 0);
+        const limit = query.getOptionalInteger("limit", 35, 1, 500);
+        const oldestFirst = query.getOptionalBoolean("oldestFirst", false);
+        
+        if (terms === null && author === null && parentAuthor === null && category === null) {
+            return Promise.reject(spec.apiError(
+                "ERR_ARGUMENT", "At least one of [terms, author, parentAuthor, category] must be specified."));
+        } else if (category === spec.ModerationFlag.Nuked) {
+            return Promise.reject(spec.apiError("ERR_ARGUMENT", "category cannot be \"nuked\"."));
         }
+        
+        const htmlPosts = await server.searchConnector.search(
+            terms, author, parentAuthor, category, offset, limit, oldestFirst);
+        return { posts: htmlPosts };
     });
 };

@@ -17,25 +17,50 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
+import { Dictionary } from "../../../collections/index";
+
+class PostLineage {
+    postId: number;
+    lineage: spec.Post[];
+}
+
+// resolves null if the post doesn't exist or is nuked
+async function getPostLineage(server: api.Server, id: number): Promise<spec.Post[]> {
+    const posts = await server.threadConnector.getThreads([id]);
+    const postsDict = Dictionary.fromArray(posts, x => x.id, x => x);
+    const parentsDict = Dictionary.fromArray(posts, x => x.id, x => x.parentId);
+    if (!postsDict.containsKey(id)) {
+        return <spec.Post[]>null;
+    }
+    const lineage: spec.Post[] = [];
+    while (id !== 0) {
+        const post = postsDict.get(id);
+        if (post.category === spec.ModerationFlag.Nuked) {
+            return <spec.Post[]>null;
+        }
+        lineage.push(post);
+        id = post.parentId;
+    }
+    return lineage;
+}
 
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getPostLineage", async (req) => {
         const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
+        const ids = query.getIntegerList("id", 1, 50, 1);
+        const list: PostLineage[] = [];
+        for (var i = 0; i < ids.length; i++) {
+            const lineage = await getPostLineage(server, ids[i]);
+            if (lineage !== null) {
+                list.push({
+                    postId: ids[i],
+                    lineage: lineage
+                });
+            }
         }
+        return list;
     });
 };

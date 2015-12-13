@@ -14,28 +14,12 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../../../typings/tsd.d.ts" />
+/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="./striptags.d.ts" />
 "use strict";
 
-import * as api from "../../index";
-import * as spec from "../../../spec/index";
+import * as striptags from "striptags";
 
-module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
-        const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
-        }
-    });
-};
+export function stripHtmlTags(html: string): string {
+    return striptags(html);
+}

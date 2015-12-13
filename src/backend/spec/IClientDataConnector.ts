@@ -28,6 +28,9 @@ export interface IClientDataConnector {
     // Called by the server at startup to provide the connector with a reference to the server instance.
     injectServer(server: api.Server): void;
     
+    // Called when the server is about to start listening for requests.
+    start(): Promise<void>;
+    
     // Resolves a list of moderation flags that the user has selected to show.  If the user has never set flag filters,
     // then a default set of filters are returned.
     getModerationFlagFilters(username: string): Promise<spec.ModerationFlag[]>;

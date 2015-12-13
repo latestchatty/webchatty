@@ -21,7 +21,7 @@ import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getThreadPostIds", async (req) => {
         const query = new api.QueryParser(req);
         const postIds = query.getIntegerList("id", 1, 50, 1);

@@ -407,7 +407,7 @@ Response:
 These API calls relate to the chatty itself.   These are the core of the v2 API.
 
 ### GET /v2/getNewestPostInfo
-Gets the ID and date of the most recent post in the database.
+Gets the ID and date of the most recent post in the database.  If there are no posts in the database, then "id" is 0 and "date" will be present but has no meaning.
 
 Parameters:
 - None.
@@ -513,7 +513,7 @@ Errors:
 - `ERR_NUKED`
 
 ### GET /v2/search
-Performs a comment search.
+Performs a comment search.  At least one of [terms, author, parentAuthor, category] must be specified.
 
 Parameters:
 - `terms=[STR?]` - Search terms.
@@ -562,6 +562,8 @@ Response:
 
 Errors:
 - `ERR_INVALID_LOGIN`
+- `ERR_NOT_MODERATOR`
+- `ERR_INVALID_POST`
 
 ## Events
 Events allow the server to inform the client of any changes that are made, which the client would need to know to keep its local copy of the chatty up to date.  The following list describes all of the event types:

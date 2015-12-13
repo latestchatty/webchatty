@@ -35,6 +35,10 @@ export class MemoryMessageConnector implements spec.IMessageConnector {
         this._server = server;
     }
     
+    // Called when the server is about to start listening for requests.
+    public async start(): Promise<void> {
+    }
+    
     // Gets a range of messages in the user’s inbox or sent mailbox.  May return fewer than 'take' messages.
     public async getMessages(credentials: spec.UserCredentials, folder: spec.Mailbox, drop: number, take: number)
             : Promise<spec.Message[]> {

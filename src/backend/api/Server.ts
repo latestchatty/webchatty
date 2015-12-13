@@ -28,12 +28,6 @@ import * as api from "./index";
 import * as collections from "../collections/index";
 import * as spec from "../spec/index";
 
-// this is the entrypoint called by the client code.
-export function runServer(config: IServerConfiguration): void {
-    var server = new Server(config);
-    server.run();
-}
-
 export interface IServerConfiguration {
     httpPort: number;
 
@@ -46,6 +40,7 @@ export interface IServerConfiguration {
     clientDataConnector: spec.IClientDataConnector;
     messageConnector: spec.IMessageConnector;
     threadConnector: spec.IThreadConnector;
+    searchConnector: spec.ISearchConnector;
 }
 
 export enum RequestMethod {
@@ -54,13 +49,14 @@ export enum RequestMethod {
 
 export class Server {
     private _config: IServerConfiguration;
-    private _app: express.Express;
     private _logger: winston.LoggerInstance;
    
+    public app: express.Express;
     public accountConnector: spec.IAccountConnector;
     public clientDataConnector: spec.IClientDataConnector;
     public messageConnector: spec.IMessageConnector;
     public threadConnector: spec.IThreadConnector;
+    public searchConnector: spec.ISearchConnector;
     public dispatcher: api.Dispatcher = new api.Dispatcher();
     
     constructor(config: IServerConfiguration) {
@@ -68,8 +64,9 @@ export class Server {
         this.clientDataConnector = config.clientDataConnector;
         this.messageConnector = config.messageConnector;
         this.threadConnector = config.threadConnector;
+        this.searchConnector = config.searchConnector;
         this._config = config;
-        this._app = express();
+        this.app = express();
         
        this._logger = new winston.Logger({
             transports: [
@@ -92,7 +89,7 @@ export class Server {
             exitOnError: false
         });
         const isErrorResponseRegex = /^[45][0-9][0-9]/;
-        this._app.use(morgan(":status :remote-addr \":method :url\" - :response-time ms - \":referrer\" \":user-agent\"", {
+        this.app.use(morgan(":status :remote-addr \":method :url\" - :response-time ms - \":referrer\" \":user-agent\"", {
             stream: <any>{ // any cast is because the typing is wrong
                 write: (str: string) => {
                     var isError = isErrorResponseRegex.test(str);
@@ -105,25 +102,32 @@ export class Server {
                 }
             }
         }));
-        this._app.use(compression({
+        this.app.use(compression({
             filter: () => true,
             threshold: 1
         }));
-        this._app.use(bodyParser.urlencoded({ extended: false }));
+        this.app.use(bodyParser.urlencoded({ extended: false }));
 
         // configure the connectors with a reference to the server instance
         this.accountConnector.injectServer(this);
         this.clientDataConnector.injectServer(this);
         this.messageConnector.injectServer(this);
         this.threadConnector.injectServer(this);
+        this.searchConnector.injectServer(this);
         this.dispatcher.injectServer(this);
         
         // load all of the routes in ./routes/ automatically by searching the filesystem for .js files
         findFilesSync(path.join(__dirname, "routes")).forEach(routeFilePath => require(routeFilePath)(this));
     }
 
-    public run(): void {
-        this._app.listen(this._config.httpPort);
+    public async run(): Promise<void> {
+        await this.accountConnector.start();
+        await this.messageConnector.start();
+        await this.threadConnector.start();
+        await this.clientDataConnector.start();
+        await this.searchConnector.start();
+        
+        this.app.listen(this._config.httpPort);
         this.log("info", "Listening on port " + this._config.httpPort);
     }
     
@@ -132,7 +136,7 @@ export class Server {
     }
     
     public addStaticFileRoute(urlRoot: string, diskRoot: string): void {
-        this._app.use(urlRoot, express.static(diskRoot, {
+        this.app.use(urlRoot, express.static(diskRoot, {
             maxAge: "6h",
             redirect: true
         }));
@@ -177,9 +181,9 @@ export class Server {
         };
         
         if (method === RequestMethod.Get) {
-            this._app.get(path, expressHandler);
+            this.app.get(path, expressHandler);
         } else {
-            this._app.post(path, expressHandler);
+            this.app.post(path, expressHandler);
         }
     }
     

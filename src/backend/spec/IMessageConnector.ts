@@ -25,6 +25,9 @@ export interface IMessageConnector {
     // Called by the server at startup to provide the connector with a reference to the server instance.
     injectServer(server: api.Server): void;
     
+    // Called when the server is about to start listening for requests.
+    start(): Promise<void>;
+    
     // Gets a range of messages in the user’s inbox or sent mailbox.  May return fewer than 'take' messages.
     getMessages(credentials: spec.UserCredentials, folder: spec.Mailbox, skip: number, 
         take: number): Promise<spec.Message[]>;

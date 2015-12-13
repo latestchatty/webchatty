@@ -20,7 +20,7 @@
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
-module.exports = function(server: api.Server) {
+module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getAllTenYearUsers", async (req) => {
         const tenYearsInMsec = 315400000000;
         const tenYearsAgoMsec = new Date().getTime() - tenYearsInMsec;

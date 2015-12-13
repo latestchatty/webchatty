@@ -17,25 +17,37 @@
 /// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
+import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
 
+class Relationship {
+    childId: number;
+    parentId: number;
+}
+
+// resolves null if the post doesn't exist or is nuked
+async function getParentId(server: api.Server, id: number): Promise<Relationship> {
+    const posts = await server.threadConnector.getPostRange(id, 1, false);
+    if (posts.length === 0 || posts[0].category === spec.ModerationFlag.Nuked) {
+        return <Relationship>null;
+    } else {
+        return { childId: id, parentId: posts[0].parentId };
+    }
+}
+
 module.exports = (server: api.Server) => {
-    server.addRoute(api.RequestMethod.Post, "/v2/verifyCredentials", async (req) => {
+    server.addRoute(api.RequestMethod.Get, "/v2/getParentId", async (req) => {
         const query = new api.QueryParser(req);
-        const username = query.getString("username");
-        const password = query.getString("password");
-        const userCredentials = await server.accountConnector.tryLogin(username, password);
-        if (userCredentials === null) {
-            return {
-                isValid: false,
-                isModerator: false
-            };
-        } else {
-            return {
-                isValid: true,
-                isModerator: userCredentials.level >= spec.UserAccessLevel.Moderator  
-            };
+        const ids = query.getIntegerList("id", 1, 50, 1);
+        const list: Relationship[] = [];
+        for (var i = 0; i < ids.length; i++) {
+            const id = ids[0];
+            const rel = await getParentId(server, id);
+            if (rel !== null) {
+                list.push(rel);
+            }
         }
+        return { relationships: list };
     });
 };

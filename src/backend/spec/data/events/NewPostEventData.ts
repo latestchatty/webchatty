@@ -21,6 +21,6 @@ import * as spec from "./../../index";
 
 export class NewPostEventData implements spec.IEventData {
     postId: number;
-    post: spec.Post;
+    post: spec.HtmlPost;
     parentAuthor: string;
 }
