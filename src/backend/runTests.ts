@@ -18,128 +18,49 @@
 "use strict";
 
 import * as webchatty from "./webchatty";
-import * as supertest from "supertest";
-import * as should from "should";
+import * as fs from "fs";
+import * as path from "path";
 
-function newServer(test: boolean): webchatty.Server {
-    const server = new webchatty.Server({
-        httpPort: 8080,
-        logFilePath: "./webchatty.log",
-        logMaxFileSize: 5000000,
-        logMaxFiles: 5,
-        logUseJsonFormat: false,
-        logConsoleLevel: test ? webchatty.LogLevel.Test : webchatty.LogLevel.Debug,
-        logFileLevel: test ? webchatty.LogLevel.Test : webchatty.LogLevel.Request,
-        accountConnector: new webchatty.MemoryAccountConnector([
-            {
-                username: "user",
-                password: "pass",
-                level: webchatty.UserAccessLevel.User,
-                registrationDate: new Date("2014-02-03T11:15:00Z") 
-            },
-            {
-                username: "mod",
-                password: "pass",
-                level: webchatty.UserAccessLevel.Moderator,
-                registrationDate: new Date("2014-01-02T23:00:00Z") 
-            },
-            {
-                username: "admin",
-                password: "pass",
-                level: webchatty.UserAccessLevel.Administrator,
-                registrationDate: new Date("2004-01-01T15:30:11Z") 
-            },
-        ]),
-        clientDataConnector: new webchatty.MemoryClientDataConnector(),
-        messageConnector: new webchatty.MemoryMessageConnector(),
-        threadConnector: new webchatty.MemoryThreadConnnector(),
-        searchConnector: new webchatty.MemorySearchConnector({
-            maxPosts: 51000,
-            prunePosts: 50000
-        })
-    });
-    server.run();
-    return server;
+// Finds all files recursively in 'dir'.
+function findFilesSync(dir: string): string[] {
+    const resultArray: string[] = [];
+    findFilesSyncCore(dir, resultArray);
+    return resultArray;
 }
 
-var numPasses = 0;
-var numFails = 0;
+// Finds all files recursively in 'dir' and adds them to 'resultArray'.
+function findFilesSyncCore(dir: string, resultArray: string[]): void {
+    fs.readdirSync(dir).forEach(function(filename) {
+        const filePath = path.join(dir, filename);
+        const stat = fs.lstatSync(filePath);
 
-function test(name: string, server: webchatty.Server, test: supertest.Test): Promise<void> {
-    return new Promise<void>((resolve, reject) => { 
-        test.end((err, res) => {
-            if (err === null) {
-                server.log("test", "Passed: " + name);
-                numPasses++;
-            } else {
-                server.log("test", "FAILED: " + name);
-                console.log(err);
-                numFails++;
-            }
-            resolve();            
-        });
+        if (stat.isDirectory()) {
+            findFilesSyncCore(filePath, resultArray);
+        } else if (path.extname(filename) === '.js') {
+            resultArray.push(filePath);
+        }
     });
 }
-
-function isError(code: string): (res: supertest.Response) => any {
-    const expectedStatus = code === "ERR_SERVER" ? 500 : 400;
-    return res => {
-        should.strictEqual(res.status, expectedStatus);
-        should.strictEqual(res.body.error, true);
-        should.strictEqual(res.body.code, code);
-    };
-}
-
-async function postCommentTests(server: webchatty.Server): Promise<void> {
-    await test("postComment - username does not exist", server,
-        supertest(server.app)
-        .post("/v2/postComment")
-        .type("form")
-        .send({ username: "invaliduser", password: "invalidpassword", parentId: 0, text: "invalid post" })
-        .expect(isError("ERR_INVALID_LOGIN"))
-    );
-    
-    await test("postComment - password is wrong", server,
-        supertest(server.app)
-        .post("/v2/postComment")
-        .type("form")
-        .send({ username: "user", password: "invalidpassword", parentId: 0, text: "invalid post" })
-        .expect(isError("ERR_INVALID_LOGIN"))
-    );
-    
-    await test("postComment - new thread", server,
-        supertest(server.app)
-        .post("/v2/postComment")
-        .type("form")
-        .send({ username: "user", password: "pass", parentId: 0, text: "new post" })
-        .expect(200)
-        .expect({ result: "success", newPostId: 1 })
-    );
-    
-    await test("postComment - new reply", server,
-        supertest(server.app)
-        .post("/v2/postComment")
-        .type("form")
-        .send({ username: "user", password: "pass", parentId: 1, text: "new reply" })
-        .expect(200)
-        .expect({ result: "success", newPostId: 2 })
-    );
-}
-
-const allTests = [
-    postCommentTests
-];
 
 async function runTests(): Promise<void> {
-    for (var i = 0; i < allTests.length; i++) {
-        const server = newServer(true);
-        await allTests[i](server);
-        server.stop();
+    const harness = new webchatty.TestHarness();
+    
+    const allTestFiles = findFilesSync(path.join(__dirname, "tests"));
+    for (var i = 0; i < allTestFiles.length; i++) {
+        harness.group = path.basename(allTestFiles[i], ".test.js");
+        try {
+            harness.server = harness.newServer(true);
+            await require(allTestFiles[i])(harness);
+            harness.server.stop();
+        } catch (ex) {
+            console.log(ex);
+            process.exit(1);
+        }
     }
     
-    console.log("Passed tests: " + numPasses);
-    console.log("Failed tests: " + numFails);
-    process.exit(numFails);
+    console.log("Passed tests: " + harness.numPasses);
+    console.log("Failed tests: " + harness.numFails);
+    process.exit(harness.numFails);
 }
 
 runTests();

@@ -166,7 +166,7 @@ export class Server {
         this.dispatcher.start();
         
         this._httpServer = this.app.listen(this._config.httpPort);
-        this.log("status", "Listening on port " + this._config.httpPort);
+        this.log("status", "Server: Listening on port " + this._config.httpPort);
     }
     
     public async stop(): Promise<void> {
@@ -174,7 +174,7 @@ export class Server {
         if (this._httpServer !== null) {
             this._httpServer.close();
         }
-        this.log("status", "Server stopped.");
+        this.log("status", "Server: Stopped.");
     }
     
     public log(level: string, message: string): void {

@@ -21,3 +21,4 @@ export * from "./api/index";
 export * from "./collections/index";
 export * from "./connectors/index";
 export * from "./spec/index";
+export * from "./TestHarness";
