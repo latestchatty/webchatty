@@ -104,7 +104,7 @@ async function postCommentTests(server: webchatty.Server): Promise<void> {
         .post("/v2/postComment")
         .type("form")
         .send({ username: "user", password: "invalidpassword", parentId: 0, text: "invalid post" })
-        .expect(isError("ERR_INVALID_LOGIN2"))
+        .expect(isError("ERR_INVALID_LOGIN"))
     );
     
     await test("postComment - new thread", server,
