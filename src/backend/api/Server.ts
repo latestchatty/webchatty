@@ -24,17 +24,30 @@ import * as compression from "compression";
 import * as fs from "fs";
 import * as path from "path";
 import * as bodyParser from "body-parser";
+import * as http from "http";
 import * as api from "./index";
 import * as collections from "../collections/index";
 import * as spec from "../spec/index";
 
-export interface IServerConfiguration {
+export enum LogLevel {
+    None = <any>"none",
+    Test = <any>"test",
+    Critical = <any>"critical",
+    Event = <any>"event",
+    Status = <any>"status",
+    Request = <any>"request",
+    Debug = <any>"debug"
+}
+
+export interface ServerConfiguration {
     httpPort: number;
 
     logFilePath: string;
     logMaxFileSize: number;
     logMaxFiles: number;
     logUseJsonFormat: boolean;
+    logFileLevel: LogLevel;
+    logConsoleLevel: LogLevel;
 
     accountConnector: spec.IAccountConnector;
     clientDataConnector: spec.IClientDataConnector;
@@ -48,8 +61,9 @@ export enum RequestMethod {
 }
 
 export class Server {
-    private _config: IServerConfiguration;
+    private _config: ServerConfiguration;
     private _logger: winston.LoggerInstance;
+    private _httpServer: http.Server = null;
    
     public app: express.Express;
     public accountConnector: spec.IAccountConnector;
@@ -59,7 +73,7 @@ export class Server {
     public searchConnector: spec.ISearchConnector;
     public dispatcher: api.Dispatcher = new api.Dispatcher();
     
-    constructor(config: IServerConfiguration) {
+    constructor(config: ServerConfiguration) {
         this.accountConnector = config.accountConnector;
         this.clientDataConnector = config.clientDataConnector;
         this.messageConnector = config.messageConnector;
@@ -68,10 +82,32 @@ export class Server {
         this._config = config;
         this.app = express();
         
-       this._logger = new winston.Logger({
+        const customLogLevels = {
+            levels: {
+                none: 0,
+                test: 1,
+                critical: 2,
+                event: 3,
+                status: 4,
+                request: 5,
+                debug: 6
+            },
+            colors: {
+                none: "red",
+                test: "magenta",
+                critical: "red",
+                event: "cyan",
+                status: "yellow",
+                request: "green",
+                debug: "magenta"
+            }
+        };
+        
+        this._logger = new winston.Logger({
+            levels: customLogLevels.levels,
             transports: [
                 new winston.transports.File({
-                    level: "info",
+                    level: config.logFileLevel.toString(),
                     filename: config.logFilePath,
                     handleExceptions: true,
                     json: config.logUseJsonFormat,
@@ -80,7 +116,7 @@ export class Server {
                     colorize: false
                 }),
                 new winston.transports.Console({
-                    level: "debug",
+                    level: config.logConsoleLevel.toString(),
                     handleExceptions: true,
                     json: false,
                     colorize: true
@@ -88,16 +124,17 @@ export class Server {
             ],
             exitOnError: false
         });
-        const isErrorResponseRegex = /^[45][0-9][0-9]/;
+        winston.addColors(customLogLevels.colors);
+        const isErrorResponseRegex = /^5[0-9][0-9]/;
         this.app.use(morgan(":status :remote-addr \":method :url\" - :response-time ms - \":referrer\" \":user-agent\"", {
             stream: <any>{ // any cast is because the typing is wrong
                 write: (str: string) => {
                     var isError = isErrorResponseRegex.test(str);
                     // send morgan's output to winston
                     if (isError) {
-                        this._logger.log("error", str.trim());
+                        this._logger.log("critical", str.trim());
                     } else {
-                        this._logger.log("info", str.trim());
+                        this._logger.log("request", str.trim());
                     }
                 }
             }
@@ -126,9 +163,18 @@ export class Server {
         await this.threadConnector.start();
         await this.clientDataConnector.start();
         await this.searchConnector.start();
+        this.dispatcher.start();
         
-        this.app.listen(this._config.httpPort);
-        this.log("info", "Listening on port " + this._config.httpPort);
+        this._httpServer = this.app.listen(this._config.httpPort);
+        this.log("status", "Listening on port " + this._config.httpPort);
+    }
+    
+    public async stop(): Promise<void> {
+        this.dispatcher.stop();
+        if (this._httpServer !== null) {
+            this._httpServer.close();
+        }
+        this.log("status", "Server stopped.");
     }
     
     public log(level: string, message: string): void {
@@ -166,7 +212,7 @@ export class Server {
                             message: error.message
                         });
                         if (code === "ERR_SERVER") {
-                            this.log("error", (ex.name || "???") + " -- " + (ex.message || "???"));
+                            this.log("critical", (ex.name || "???") + " -- " + (ex.message || "???"));
                         }
                     } else {
                         res.status(500);
@@ -175,7 +221,7 @@ export class Server {
                             code: "ERR_SERVER",
                             message: ex.toString()
                         })
-                        this.log("error", ex.toString());
+                        this.log("critical", ex.toString());
                     }
                 });
         };

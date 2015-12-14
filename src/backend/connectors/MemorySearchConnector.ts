@@ -65,7 +65,7 @@ export class MemorySearchConnector implements spec.ISearchConnector {
     // Called when the server is about to start listening for requests.
     public async start(): Promise<void> {
         // this may take some time so make a note of it in the log output
-        this._server.log("verbose", "MemorySearchConnector: Loading initial posts...");
+        this._server.log("status", "MemorySearchConnector: Loading initial posts...");
         
         // preload the newest posts
         const newestPostId = await this._server.threadConnector.getNewestPostId();
@@ -90,7 +90,7 @@ export class MemorySearchConnector implements spec.ISearchConnector {
             }
         }
         
-        this._server.log("verbose", "MemorySearchConnector: Ready.");
+        this._server.log("status", "MemorySearchConnector: Ready.");
     }
     
     // Comment search. At least one of [terms, author, parentAuthor, category] will be provided and the others are null 
@@ -178,7 +178,7 @@ export class MemorySearchConnector implements spec.ISearchConnector {
     
     private async pruneIfNeeded(): Promise<void> {
         if (this._posts.count() >= this._options.maxPosts) {
-            this._server.log("info", "MemorySearchConnector: Starting reindex...");
+            this._server.log("status", "MemorySearchConnector: Starting reindex...");
             const survivors = lodash.chain(this._posts.keys()).sortBy(x => -x).take(this._options.prunePosts).value();
             const postsDict = this._posts;
             
@@ -207,7 +207,7 @@ export class MemorySearchConnector implements spec.ISearchConnector {
                 }
                 await this.onNewEvent(event);
             }
-            this._server.log("info", "MemorySearchConnector: Reindex finished.");
+            this._server.log("status", "MemorySearchConnector: Reindex finished.");
         }
     }
 }

@@ -20,7 +20,9 @@
         "body-parser": "^1.14.1",
         "lodash": "^3.10.1",
         "stemmer": "^0.1.4",
-        "striptags": "^2.0.4"
+        "striptags": "^2.0.4",
+        "supertest": "^1.1.0",
+        "should": "^8.0.1"
     },
     "devDependencies": {
         "typescript": "^1.7.3",
@@ -46,7 +48,8 @@
     },
     "scripts": {
         "prepublish": "bower install && tsd install && gulp build",
-        "start": "node ./build-backend/src/backend/runTestServer",
+        "start": "node ./build-backend/src/backend/runExampleServer",
+        "test": "node ./build-backend/src/backend/runTests",
         "clean": "gulp clean",
         "watch": "npm install && gulp watch",
         "lint": "eslint -c .eslintrc $( find . -type f -name '*.js' | grep -v node_modules/ | grep -v gulpfile | grep -v build-frontend/ | grep -v build-backend/ | grep -v bower_components/ )",

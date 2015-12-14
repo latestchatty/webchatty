@@ -28,6 +28,8 @@ const server = new webchatty.Server({
     logMaxFileSize: 5000000,
     logMaxFiles: 5,
     logUseJsonFormat: false,
+    logConsoleLevel: webchatty.LogLevel.Debug,
+    logFileLevel: webchatty.LogLevel.Request,
     accountConnector: new webchatty.MemoryAccountConnector([
         {
             username: "user",
@@ -57,6 +59,8 @@ const server = new webchatty.Server({
     })
 });
 
-// the express app is exposed as server.app for custom routes
-
 server.run();
+
+process.on("SIGINT", () => {
+    server.stop();
+});

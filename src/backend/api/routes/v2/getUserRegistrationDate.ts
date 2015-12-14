@@ -26,7 +26,7 @@ module.exports = (server: api.Server) => {
         const usernames = query.getStringList("username", 1, 50);
         const dict = await server.accountConnector.getUserRegistrationDates(usernames);
         return {
-            users: dict.pairs().map(x => ({ username: x.key, date: api.formatUtcDate(x.value) }))
+            users: dict.pairs().map(x => ({ username: x.key, date: x.value }))
         };
     });
 };

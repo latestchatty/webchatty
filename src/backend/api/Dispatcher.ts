@@ -35,7 +35,8 @@ export class Dispatcher {
     private _events: spec.Event[] = []; 
     private _eventWaiters: IEventWaiter[] = [];
     private _sendQueue: spec.Event[] = [];
-    private _wakeMessageLoop: () => void; // call this when pushing onto sendQueue
+    private _wakeMessageLoop: () => void = () => {}; // call this when pushing onto sendQueue
+    private _shuttingDown: boolean = false;
     
     public newEventSignal: spec.Signal<spec.Event> = new spec.Signal<spec.Event>();
     
@@ -55,17 +56,26 @@ export class Dispatcher {
             });
             this._eventWaiters = lodash.filter(this._eventWaiters, x => x.resolve !== null);
         }, 2500).unref();
-        
+    }
+    
+    public start(): void {
         this.startMessageLoop();
+    }
+    
+    public stop(): void {
+        this._shuttingDown = true;
+        this._wakeMessageLoop();
     }
     
     private startMessageLoop(): void {
         this.messageLoop()
             .then(() => {
-                return this.messageLoop();
+                if (!this._shuttingDown) {
+                    return this.messageLoop();
+                }
             })
             .catch(ex => {
-                this._server.log("error", "Message loop error: " + ex.toString() + " -- " + (ex instanceof Error ? ex.stack : ""));
+                this._server.log("critical", "Message loop error: " + ex.toString() + " -- " + (ex instanceof Error ? ex.stack : ""));
                 this.startMessageLoop();
             });
     }
@@ -97,9 +107,13 @@ export class Dispatcher {
     // this ensures that the asynchronous process of sending an event is not interrupted when a new event shows up.
     // we process each event fully before moving on to the next queued event.
     private async messageLoop(): Promise<void> {
-        while (true) {
-            while (this._sendQueue.length === 0) {
+        while (!this._shuttingDown) {
+            while (this._sendQueue.length === 0 && !this._shuttingDown) {
                 await this.sleep();
+            }
+            
+            if (this._shuttingDown) {
+                return;
             }
             
             const event = this._sendQueue.shift();
@@ -123,7 +137,7 @@ export class Dispatcher {
             // this may trigger, e.g., a search index rebuild which could take some time.
             await this.newEventSignal.send(event);
             
-            this._server.log("verbose", "Event #" + event.eventId + ": " + event.eventType);
+            this._server.log("event", "Event #" + event.eventId + ": " + event.eventType);
         }
     }
     

@@ -18,6 +18,5 @@
 "use strict";
 
 export * from "./Dispatcher";
-export * from "./formatUtcDate";
 export * from "./QueryParser";
 export * from "./Server";
