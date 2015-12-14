@@ -21,9 +21,6 @@ import * as webchatty from "./webchatty";
 import * as supertest from "supertest";
 import * as should from "should";
 
-// This runs the WebChatty server with dummy settings and an in-memory database.
-// It's useful for development, and this file serves as an example for how the webchatty server is invoked.
-
 function newServer(test: boolean): webchatty.Server {
     const server = new webchatty.Server({
         httpPort: 8080,
@@ -107,7 +104,7 @@ async function postCommentTests(server: webchatty.Server): Promise<void> {
         .post("/v2/postComment")
         .type("form")
         .send({ username: "user", password: "invalidpassword", parentId: 0, text: "invalid post" })
-        .expect(isError("ERR_INVALID_LOGIN"))
+        .expect(isError("ERR_INVALID_LOGIN2"))
     );
     
     await test("postComment - new thread", server,
