@@ -60,9 +60,10 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
             .value();
     }
     
-    // Gets all posts in all specified threads, in no particular order.  The IDs may be replies inside the thread,
-    // not necessarily the thread root.  If multiple post IDs in the same thread are specified, that thread's posts are 
-    // returned only once.  If a post ID does not exist, then the thread is silently omitted from the results.
+    // Gets all posts (including nuked posts) in all specified threads, in no particular order.  The IDs may be 
+    // replies inside the thread, not necessarily the thread root.  If multiple post IDs in the same thread are 
+    // specified, that thread's posts are returned only once.  If a post ID does not exist, then the thread is silently
+    // omitted from the results.
     public async getThreads(postIds: number[]): Promise<spec.Post[]> {
         var threadIds = lodash
             .chain(postIds)
@@ -119,13 +120,12 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
         return this._nextId - 1;
     }
     
-    // Gets a consecutive range of posts, omitting nuked posts.  Nuked posts are excluded, and do not count towards
-    //  the maximum 'count'. startId is inclusive.
+    // Gets a consecutive range of posts, including nuked posts.
     public async getPostRange(startId: number, count: number, reverse: boolean): Promise<spec.Post[]> {
         const list: spec.Post[] = [];
         for (var id = startId; id > 0 && id < this._nextId && list.length < count; id += (reverse ? -1 : 1)) {
             const post = this._posts.lookup(id, null);
-            if (post !== null && post.category !== spec.ModerationFlag.Nuked) {
+            if (post !== null) {
                 list.push(post);
             }
         }

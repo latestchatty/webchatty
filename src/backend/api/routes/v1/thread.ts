@@ -14,10 +14,24 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-export * from "./Dispatcher";
-export * from "./QueryParser";
-export * from "./removeNukedSubthreads";
-export * from "./Server";
+import * as api from "../../index";
+import * as spec from "../../../spec/index";
+
+module.exports = (server: api.Server) => {
+    server.addRoute(api.RequestMethod.Get, "/v1/thread/:id.json", async (req) => {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id) || id < 1) {
+            return Promise.reject(new spec.V1Error("id must be at least 1."));
+        }
+        const posts = api.removeNukedSubthreads(await server.threadConnector.getThreads([id]));
+        if (posts.length === 0) {
+            return Promise.reject(new spec.V1Error("Thread was not found."));
+        }
+        const threadId = posts[0].threadId;
+        const comment = spec.toV1Comment(threadId, posts, true, true);
+        return new spec.V1Thread([comment]);
+    });
+};

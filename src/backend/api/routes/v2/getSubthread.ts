@@ -26,7 +26,7 @@ module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getSubthread", async (req) => {
         const query = new api.QueryParser(req);
         const postIds = query.getIntegerList("id", 1, 50, 1);
-        const posts = await server.threadConnector.getThreads(postIds);
+        const posts = api.removeNukedSubthreads(await server.threadConnector.getThreads(postIds));
         const postsById = Dictionary.fromArray(posts, x => x.id, x => x);
         
         const selectedPostIdsBySubthread = lodash.map(postIds, postId => {

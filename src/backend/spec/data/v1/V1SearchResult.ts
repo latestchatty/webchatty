@@ -14,10 +14,29 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-export * from "./Dispatcher";
-export * from "./QueryParser";
-export * from "./removeNukedSubthreads";
-export * from "./Server";
+import * as spec from "./../../index";
+import * as v1 from "./index";
+
+export class V1SearchResult {
+    public comments: any[] = [];
+    public last_reply_id: any = null;
+    public author: string;
+    public date: string;
+    public story_id = 0;
+    public category: any = null;
+    public reply_count: any = null;
+    public id: string;
+    public story_name = "";
+    public preview: string;
+    public body: any = null;
+    
+    constructor(author: string, date: Date, id: number, preview: string) {
+        this.author = author;
+        this.date = v1.toV1Date(date);
+        this.id = id.toString();
+        this.preview = preview;
+    }
+}

@@ -17,7 +17,24 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 "use strict";
 
-export * from "./Dispatcher";
-export * from "./QueryParser";
-export * from "./removeNukedSubthreads";
-export * from "./Server";
+import * as lodash from "lodash";
+import * as spec from "./../spec/index";
+import { Set } from "../collections/index";
+
+export function removeNukedSubthreads(posts: spec.Post[]): spec.Post[] {
+    const postsByParent = lodash.groupBy(posts, x => x.parentId);
+    const nukedPostIds = new Set<number>();
+    
+    const stack = lodash.chain(posts).filter(x => x.category === spec.ModerationFlag.Nuked).map(x => x.id).value();
+    while (stack.length > 0) {
+        const id = stack.pop();
+        nukedPostIds.add(id);
+        if (postsByParent.hasOwnProperty(id)) {
+            postsByParent[id].forEach(child => {
+                stack.push(child.id);
+            });
+        }
+    }
+    
+    return lodash.filter(posts, x => !nukedPostIds.contains(x.id));
+}

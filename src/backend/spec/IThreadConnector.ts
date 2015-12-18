@@ -28,14 +28,15 @@ export interface IThreadConnector {
     // Called when the server is about to start listening for requests.
     start(): Promise<void>;
     
-    // Gets the list of recently bumped threads, starting with the most recently bumped.  Only non-expired threads
-    // are included.  Up to "maxThreads" of the most recent threads are returned.  "expirationHours" is the number of
-    // hours to retain a thread in this list.
+    // Gets the list of recently bumped threads, starting with the most recently bumped.  
+    // Only non-nuked, non-expired threads are included.  Up to "maxThreads" of the most recent threads are returned.  
+    // "expirationHours" is the number of hours to retain a thread in this list.
     getActiveThreadIds(maxThreads: number, expirationHours: number): Promise<number[]>;
     
-    // Gets all posts in all specified threads, in no particular order.  The IDs may be replies inside the thread,
-    // not necessarily the thread root.  If multiple post IDs in the same thread are specified, that thread's posts are 
-    // returned only once.  If a post ID does not exist, then the thread is silently omitted from the results.
+    // Gets all posts (including nuked posts) in all specified threads, in no particular order.  The IDs may be 
+    // replies inside the thread, not necessarily the thread root.  If multiple post IDs in the same thread are 
+    // specified, that thread's posts are returned only once.  If a post ID does not exist, then the thread is silently
+    // omitted from the results.
     getThreads(postIds: number[]): Promise<spec.Post[]>;
     
     // Resolves the new post ID if it worked.  parentId may be 0 to post a new thread.
@@ -48,8 +49,7 @@ export interface IThreadConnector {
     // Resolves the newest post ID in the database, or 0 if there are no posts.  The newest post may be nuked.
     getNewestPostId(): Promise<number>;
     
-    // Gets a consecutive range of posts, omitting nuked posts.  Nuked posts are excluded, and do not count towards
-    //  the maximum 'count'. startId is inclusive.
+    // Gets a consecutive range of posts, including nuked posts.
     getPostRange(startId: number, count: number, reverse: boolean): Promise<spec.Post[]>;
     
     // Moderator-only action that changes a post's category.  The caller has verified that the user is a moderator.

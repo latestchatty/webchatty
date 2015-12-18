@@ -31,8 +31,9 @@ module.exports = (server: api.Server) => {
         const date = query.getOptionalDate("date", null);
         
         const allThreadIds = await server.threadConnector.getActiveThreadIds(9999, 18);
-        const threadIds = lodash.chain(allThreadIds).drop(offset).take(limit).value();
-        const posts = await server.threadConnector.getThreads(threadIds);
+        const posts = api.removeNukedSubthreads(await server.threadConnector.getThreads(allThreadIds));
+        const allUnnukedThreadIds = lodash.chain(posts).map(x => x.threadId).union().value();
+        const threadIds = lodash.chain(allUnnukedThreadIds).drop(offset).take(limit).value();
         const usernameLowerCase = username.toLowerCase();
         const userParticipationThreadIds = lodash
             .chain(posts)

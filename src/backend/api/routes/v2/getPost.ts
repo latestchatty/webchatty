@@ -20,19 +20,22 @@
 import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
+import { Dictionary } from "../../../collections/index"; 
 
 module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getPost", async (req) => {
         const query = new api.QueryParser(req);
         const ids = query.getIntegerList("id", 1, 50, 1);
-        const posts: spec.HtmlPost[] = [];
-        for (var i = 0; i < ids.length; i++) {
-            const id = ids[i];
-            const idPosts = await server.threadConnector.getPostRange(id, 1, false);
-            if (idPosts.length > 0) {
-                posts.push(idPosts[0]);
-            }
-        }
-        return { posts: lodash.map(posts, spec.postToHtml) };
+        const threadPosts = await server.threadConnector.getThreads(ids);
+        const unnukedThreadPosts = api.removeNukedSubthreads(threadPosts);
+        const postsById = Dictionary.fromArray(unnukedThreadPosts, x => x.id, x => x);
+        return { 
+            posts: lodash
+                .chain(ids)
+                .map(x => postsById.lookup(x, null))
+                .filter(x => x !== null)
+                .map(spec.postToHtml)
+                .value() 
+        };
     });
 };

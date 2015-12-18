@@ -61,6 +61,7 @@ const server = new webchatty.Server({
 
 server.run();
 
-process.on("SIGINT", () => {
-    server.stop();
+process.on("SIGINT", async () => {
+    await server.stop();
+    process.exit(0);
 });

@@ -20,14 +20,45 @@
 import * as lodash from "lodash";
 import * as api from "../../index";
 import * as spec from "../../../spec/index";
+import { Set } from "../../../collections/index";
+
+async function getUnnukedPostRange(server: api.Server, startId: number, count: number, reverse: boolean)
+        : Promise<spec.Post[]> {
+    const unnukedPosts: spec.Post[] = [];
+    
+    // we need to exclude the nuked posts, and the nuked posts must not count against 'count'.
+    // we will grab 'count+10' posts, then grab all the containing threads, then remove the nuked subthreads.
+    // if there were more than 10 nuked posts in there, then read another full chunk of posts until we have enough.
+    const chunkSize = count + 10;
+    while (startId > 0 && unnukedPosts.length < count) {
+        const posts = await server.threadConnector.getPostRange(startId, chunkSize, reverse);
+        if (posts.length === 0) {
+            break; // no posts left, so return fewer posts than requested
+        }
+        const threadIds = lodash.chain(posts).map(x => x.threadId).union().value();
+        const allThreadPosts = await server.threadConnector.getThreads(threadIds);
+        const allUnnukedPosts = api.removeNukedSubthreads(allThreadPosts);
+        const postIds = Set.fromArray(posts, x => x.id);
+        allUnnukedPosts.filter(x => postIds.contains(x.id)).forEach(post => {
+            unnukedPosts.push(post);
+        });
+        startId += (reverse ? -1 : 1) * chunkSize;
+    }
+
+    return lodash
+        .chain(unnukedPosts)
+        .sortBy(x => (reverse ? -1 : 1) * x.id)
+        .take(count)
+        .value();
+}
 
 module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getPostRange", async (req) => {
         const query = new api.QueryParser(req);
-        const startId = query.getInteger("startId");
+        var startId = query.getInteger("startId");
         const count = query.getInteger("count", 1, 1000);
         const reverse = query.getOptionalBoolean("reverse", false);
-        const posts = await server.threadConnector.getPostRange(startId, count, reverse);
+        const posts = await getUnnukedPostRange(server, startId, count, reverse);
         return { posts: lodash.map(posts, spec.postToHtml) };
     });
 };

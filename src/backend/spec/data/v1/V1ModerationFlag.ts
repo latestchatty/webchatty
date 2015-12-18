@@ -14,10 +14,30 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-export * from "./Dispatcher";
-export * from "./QueryParser";
-export * from "./removeNukedSubthreads";
-export * from "./Server";
+import * as spec from "../../index";
+
+export enum V1ModerationFlag {
+    OnTopic = <any>"ontopic",
+    NotWorkSafe = <any>"nws",
+    Stupid = <any>"stupid",
+    PoliticalReligious = <any>"political",
+    Tangent = <any>"offtopic",
+    Informative = <any>"informative",
+    Nuked = <any>"nuked"
+}
+
+export function toV1ModerationFlag(flag: spec.ModerationFlag): V1ModerationFlag {
+    switch (flag) {
+        case spec.ModerationFlag.OnTopic: return V1ModerationFlag.OnTopic;
+        case spec.ModerationFlag.NotWorkSafe: return V1ModerationFlag.NotWorkSafe;
+        case spec.ModerationFlag.Stupid: return V1ModerationFlag.Stupid;
+        case spec.ModerationFlag.PoliticalReligious: return V1ModerationFlag.PoliticalReligious;
+        case spec.ModerationFlag.Tangent: return V1ModerationFlag.Tangent;
+        case spec.ModerationFlag.Informative: return V1ModerationFlag.Informative;
+        case spec.ModerationFlag.Nuked: return V1ModerationFlag.Nuked;
+        default: throw spec.apiError("ERR_SERVER", "Invalid ModerationFlag: " + flag);
+    }
+}

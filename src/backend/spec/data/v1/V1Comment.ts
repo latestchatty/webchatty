@@ -14,10 +14,35 @@
 // OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-/// <reference path="../../../typings/tsd.d.ts" />
+/// <reference path="../../../../../typings/tsd.d.ts" />
 "use strict";
 
-export * from "./Dispatcher";
-export * from "./QueryParser";
-export * from "./removeNukedSubthreads";
-export * from "./Server";
+import * as spec from "./../../index";
+import * as v1 from "./index";
+
+export class V1Comment {
+    comments: V1Comment[];
+    reply_count: number;
+    body: string;
+    date: string;
+    participants: string[];
+    category: v1.V1ModerationFlag;
+    last_reply_id: string;
+    author: string;
+    preview: string;
+    id: string;
+    
+    constructor(comments: V1Comment[], replyCount: number, body: string, date: Date, participants: string[],
+            category: v1.V1ModerationFlag, lastReplyId: number, author: string, preview: string, id: number) {
+        this.comments = comments;
+        this.reply_count = replyCount;
+        this.body = body;
+        this.date = v1.toV1Date(date);
+        this.participants = participants;
+        this.category = category;
+        this.last_reply_id = lastReplyId.toString();
+        this.author = author;
+        this.preview = preview;
+        this.id = id.toString();
+    }
+}

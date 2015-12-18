@@ -202,7 +202,10 @@ export class Server {
                     res.send(resData); 
                 })
                 .catch(ex => {
-                    if (ex instanceof Error) {
+                    if (ex instanceof spec.V1Error) {
+                        res.status(400);
+                        res.send(ex);
+                    } else if (ex instanceof Error) {
                         const error = <Error>ex;
                         const code = error.name.substr(0, 4) === "ERR_" ? error.name : "ERR_SERVER";
                         res.status(code === "ERR_SERVER" ? 500 : 400);

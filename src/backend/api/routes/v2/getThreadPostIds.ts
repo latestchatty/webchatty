@@ -25,7 +25,7 @@ module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v2/getThreadPostIds", async (req) => {
         const query = new api.QueryParser(req);
         const postIds = query.getIntegerList("id", 1, 50, 1);
-        const posts = await server.threadConnector.getThreads(postIds);
+        const posts = api.removeNukedSubthreads(await server.threadConnector.getThreads(postIds));
         const threads = lodash.groupBy(posts, x => x.threadId);
         return {
             threads: lodash.map(threads, thread => ({

@@ -18,6 +18,7 @@
 "use strict";
 
 export * from "./events/index";
+export * from "./v1/index";
 export * from "./LolCount";
 export * from "./Mailbox";
 export * from "./MailboxOverview";
