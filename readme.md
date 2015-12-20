@@ -1,4 +1,3 @@
-<img src="http://cl.ly/e8Xe/.png" align="right" height="64" width="64" alt="WebChatty Project">
 # WebChatty
 [![npm version](https://badge.fury.io/js/webchatty.svg)](http://badge.fury.io/js/webchatty)
 [![build status](https://travis-ci.org/webchatty/webchatty.svg?branch=master)](https://travis-ci.org/webchatty/webchatty)
