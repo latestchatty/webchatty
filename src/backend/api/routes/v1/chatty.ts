@@ -25,7 +25,6 @@ const POSTS_PER_PAGE = 40;
 const EXPIRATION_HOURS = 18;
 
 async function getChattyPage(page: number, server: api.Server): Promise<spec.V1Page> {
-    const numPosts = page * POSTS_PER_PAGE;
     const allThreadIds = await server.threadConnector.getActiveThreadIds(9999, EXPIRATION_HOURS);
     const unnukedPosts = api.removeNukedSubthreads(await server.threadConnector.getThreads(allThreadIds));
     const unnukedThreadIds = lodash.chain(unnukedPosts).map(x => x.threadId).union().value();
@@ -35,7 +34,7 @@ async function getChattyPage(page: number, server: api.Server): Promise<spec.V1P
     const lastPage = Math.ceil(allThreadIds.length / POSTS_PER_PAGE);
     return new spec.V1Page(comments, page, lastPage);
 }
-
+ 
 module.exports = (server: api.Server) => {
     server.addRoute(api.RequestMethod.Get, "/v1/:ignored.:page.json", async (req) => {
         const page = parseInt(req.params.page, 10);
@@ -45,10 +44,6 @@ module.exports = (server: api.Server) => {
             return await getChattyPage(page, server);
         }
     });
-
-    server.addRoute(api.RequestMethod.Get, "/v1/:ignored.json", async (req) => {
-        return await getChattyPage(1, server);
-    }); 
 
     server.addRoute(api.RequestMethod.Get, "/v1/index.json", async (req) => {
         return await getChattyPage(1, server);

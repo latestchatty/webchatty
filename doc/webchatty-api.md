@@ -1225,11 +1225,6 @@ Errors are reported using the following JSON structure.
 
 Response: `[V1_PAGE]`
 
-### GET /v1/`[INT]`.json
-**Deprecated.** Same as /v1/index.json.  The number in the URL is ignored.  Originally this retrieved a particular chatty (like a particular Morning Discussion or Evening Reading) prior to the "rolling" chatty concept.
-
-Response: `[V1_PAGE]`
-
 ### GET /v1/`[INT]`.`[INT]`.json
 **Deprecated.** Gets the Nth page of active threads, where N is the second number in the URL.  The first number is ignored.
 

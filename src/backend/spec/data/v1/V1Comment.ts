@@ -20,19 +20,24 @@
 import * as spec from "./../../index";
 import * as v1 from "./index";
 
+export class V1Participant {
+    public username: string;
+    public post_count: number;
+}
+
 export class V1Comment {
-    comments: V1Comment[];
-    reply_count: number;
-    body: string;
-    date: string;
-    participants: string[];
-    category: v1.V1ModerationFlag;
-    last_reply_id: string;
-    author: string;
-    preview: string;
-    id: string;
+    public comments: V1Comment[];
+    public reply_count: number;
+    public body: string;
+    public date: string;
+    public participants: V1Participant[];
+    public category: v1.V1ModerationFlag;
+    public last_reply_id: string;
+    public author: string;
+    public preview: string;
+    public id: string;
     
-    constructor(comments: V1Comment[], replyCount: number, body: string, date: Date, participants: string[],
+    constructor(comments: V1Comment[], replyCount: number, body: string, date: Date, participants: V1Participant[],
             category: v1.V1ModerationFlag, lastReplyId: number, author: string, preview: string, id: number) {
         this.comments = comments;
         this.reply_count = replyCount;

@@ -95,10 +95,12 @@ export function toV1Comment(id: number, posts: spec.Post[], isRoot?: boolean, re
     
     const threadPosts = isRoot ? lodash.filter(posts, x => x.threadId === id) : [];
     const replyCount = isRoot ? threadPosts.length : 0;
-    const participants = isRoot ? lodash.chain(threadPosts).map(x => x.author).union().value() : [];
+    const participantNames = isRoot ? lodash.chain(threadPosts).map(x => x.author).union().value() : [];
+    const postsByAuthor = isRoot ? lodash.groupBy(threadPosts, x => x.author) : null;
+    const participants = isRoot ? lodash.map(participantNames, x => ({ username: x, post_count: postsByAuthor[x].length })) : [];
     const lastReplyId = isRoot ? lodash.max(threadPosts, x => x.id).id : 0;
     const preview = removeSpoilers(spec.tagsToHtml(rootPost.body));
     
-    return new spec.V1Comment(childComments, replyCount, rootPost.body, rootPost.date, participants, 
+    return new spec.V1Comment(childComments, replyCount, spec.tagsToHtml(rootPost.body), rootPost.date, participants, 
         spec.toV1ModerationFlag(rootPost.category), lastReplyId, rootPost.author, preview, id);   
 }

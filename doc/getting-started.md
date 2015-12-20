@@ -49,7 +49,7 @@ $ npm start
 
 Then navigate to http://127.0.0.1:8080/chatty in your web browser, and you should see a working chatty.  After making code changes, rerun these last two steps to rebuild WebChatty and run the server.
 
-The test server is configured (in `src/backend/runTestServer.ts`) with three test users:
+The test server is configured (in `src/backend/runExampleServer.ts`) with three test users:
 
 Username | Password | Access level
 --- | --- | ---
