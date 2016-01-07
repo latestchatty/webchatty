@@ -6,15 +6,14 @@
         "removeComments": false,
         "preserveConstEnums": true,
         "sourceMap": true,
-        "declaration": true,
-        "experimentalAsyncFunctions": true
+        "declaration": true
     },
     "exclude": [
         "node_modules",
         "bower_components",
         "build-backend",
         "build-frontend",
-        "doc",       
+        "doc",
         "src/frontend",
         "typings"
     ]
