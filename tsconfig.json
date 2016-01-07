@@ -6,7 +6,9 @@
         "removeComments": false,
         "preserveConstEnums": true,
         "sourceMap": true,
-        "declaration": true
+        "declaration": true,
+        "outDir": "build-backend",
+        "rootDir": "."
     },
     "exclude": [
         "node_modules",
