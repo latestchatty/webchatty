@@ -162,7 +162,7 @@ export class Dispatcher {
             return Promise.resolve(existingEvents);
         }
         
-        return new Promise((resolve, reject) => {
+        return new Promise<spec.Event[]>((resolve, reject) => {
             this._eventWaiters.push({
                 expirationMsec: new Date().getTime() + 20000, // 20 seconds
                 resolve: resolve

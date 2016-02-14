@@ -22,3 +22,4 @@ export * from "./MemoryClientDataConnector";
 export * from "./MemoryMessageConnector";
 export * from "./MemorySearchConnector";
 export * from "./MemoryThreadConnector";
+export * from "./ShacknewsMessageConnector";
