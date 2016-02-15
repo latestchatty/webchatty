@@ -842,6 +842,7 @@ Parameters:
 - `username=[STR]` - Username.
 - `password=[STR]` - Password.
 - `messageId=[INT]` - Message ID.
+- `folder=[MBX]` - Mailbox (inbox or sent).
 
 Response:
 ```

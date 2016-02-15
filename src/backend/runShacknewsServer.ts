@@ -18,33 +18,25 @@
 "use strict";
 
 import * as webchatty from "./webchatty";
-import * as knex from "knex";
 
 // This connects WebChatty to the Shacknews MySQL backend.
 
-[
-    "SHACK_SQL_HOSTNAME",
-    "SHACK_SQL_PORT",
-    "SHACK_SQL_USERNAME",
-    "SHACK_SQL_PASSWORD",
-    "SHACK_SQL_DATABASE",
-].forEach(envVar => {
-    if (!process.env.hasOwnProperty(envVar)) {
-        console.error("Missing environment variable: " + envVar);
+function getEnv(key: string): string {
+    if (process.env.hasOwnProperty(key)) {
+        return process.env[key];
+    } else {
+        console.error(`The environment variable "${key}" must be provided.`);
         process.exit(1);
     }
-});
+}
 
-const db = knex({
-    client: "mysql",
-    connection: {
-        host: process.env.SHACK_SQL_HOSTNAME,
-        port: process.env.SHACK_SQL_PORT,
-        user: process.env.SHACK_SQL_USERNAME,
-        password: process.env.SHACK_SQL_PASSWORD,
-        database: process.env.SHACK_SQL_DATABASE
-    }
-});
+const shacknewsCommon = new webchatty.ShacknewsCommon(
+    getEnv("SHACK_SQL_HOSTNAME"),
+    parseInt(getEnv("SHACK_SQL_PORT")),
+    getEnv("SHACK_SQL_USERNAME"),
+    getEnv("SHACK_SQL_PASSWORD"),
+    getEnv("SHACK_SQL_DATABASE")
+);
 
 const server = new webchatty.Server({
     httpPort: 8080,
@@ -75,8 +67,10 @@ const server = new webchatty.Server({
         },
     ]),
     clientDataConnector: new webchatty.MemoryClientDataConnector(),
-    messageConnector: new webchatty.ShacknewsMessageConnector(db),
-    threadConnector: new webchatty.MemoryThreadConnnector(),
+    messageConnector: new webchatty.ShacknewsMessageConnector(shacknewsCommon),
+    threadConnector: new webchatty.ShacknewsThreadConnector(shacknewsCommon, {
+        pollingIntervalMsec: 2000
+    }),
     searchConnector: new webchatty.MemorySearchConnector({
         maxPosts: 51000,
         prunePosts: 50000

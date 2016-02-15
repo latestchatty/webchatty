@@ -56,9 +56,8 @@ export class MemoryMessageConnector implements spec.IMessageConnector {
         };
     }
     
-    // Resolves true if it worked.  The caller has previously verified that the recipient username is valid.
-    public async sendMessage(credentials: spec.UserCredentials, recipient: string, subject: string, body: string)
-            : Promise<boolean> {
+    // The caller has previously verified that the recipient username is valid.
+    public async sendMessage(credentials: spec.UserCredentials, recipient: string, subject: string, body: string): Promise<void> {
         const message: spec.Message = {
             id: this._nextId++,
             from: credentials.username,
@@ -74,36 +73,41 @@ export class MemoryMessageConnector implements spec.IMessageConnector {
         this.createMailboxes(recipient);
         this._inboxes.get(recipient.toLowerCase()).add(message.id, message);
         this._outboxes.get(credentials.username.toLowerCase()).add(message.id, senderCopy);
-        return true;
     }
     
-    // Resolves true if it worked.  If 'messageId' is invalid, the implementation may either reject with
-    // ERR_INVALID_MESSAGE, or silently ignore it.  We reject with the error.
-    public async markMessageRead(credentials: spec.UserCredentials, messageId: number): Promise<boolean> {
+    // If 'messageId' is invalid, the implementation may either reject with ERR_INVALID_MESSAGE, or silently ignore it.
+    // We reject with the error.
+    public async markMessageRead(credentials: spec.UserCredentials, messageId: number): Promise<void> {
         this.createMailboxes(credentials.username);
         const dict = this._inboxes.get(credentials.username.toLowerCase());
         const message = dict.lookup(messageId, null);
         if (message === null) {
-            return Promise.reject<boolean>(spec.apiError("ERR_INVALID_MESSAGE", "Message does not exist."));
+            return Promise.reject(spec.apiError("ERR_INVALID_MESSAGE", "Message does not exist."));
         }
         message.unread = false;
-        return true;
     }
     
-    // Resolves true if it worked.  If 'messageId' is invalid, the implementation may either reject with
+    // If 'messageId' is invalid, the implementation may either reject with
     // ERR_INVALID_MESSAGE, or silently ignore it.  We reject with the error.
-    public async deleteMessage(credentials: spec.UserCredentials, messageId: number): Promise<boolean> {
+    public async deleteMessage(credentials: spec.UserCredentials, messageId: number, mailbox: spec.Mailbox): Promise<void> {
         this.createMailboxes(credentials.username);
         const inbox = this._inboxes.get(credentials.username.toLowerCase());
         const outbox = this._outboxes.get(credentials.username.toLowerCase());
         const isInInbox = inbox.containsKey(messageId);
         const isInOutbox = outbox.containsKey(messageId);
-        if (!isInInbox && !isInOutbox) {
-            return Promise.reject<boolean>(spec.apiError("ERR_INVALID_MESSAGE", "Message does not exist."));
+        if (mailbox === spec.Mailbox.Inbox) {
+            if (isInInbox) {
+                inbox.remove(messageId);
+            } else {
+                return Promise.reject(spec.apiError("ERR_INVALID_MESSAGE", "Message does not exist."));
+            }
+        } else {
+            if (isInOutbox) {
+                outbox.remove(messageId);
+            } else {
+                return Promise.reject(spec.apiError("ERR_INVALID_MESSAGE", "Message does not exist."));
+            }
         }
-        inbox.remove(messageId);
-        outbox.remove(messageId);
-        return true;
     }
     
     private getFolderMessages(credentials: spec.UserCredentials, folder: spec.Mailbox) {

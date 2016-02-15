@@ -26,8 +26,9 @@ module.exports = (server: api.Server) => {
         const username = query.getString("username");
         const password = query.getString("password");
         const messageId = query.getInteger("messageId");
+        const mailbox = query.getMailbox("folder");
         const credentials = await server.verifyLogin(username, password);
-        await server.messageConnector.deleteMessage(credentials, messageId);
+        await server.messageConnector.deleteMessage(credentials, messageId, mailbox);
         return { result: "success" };
     });
 };

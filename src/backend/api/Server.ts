@@ -170,6 +170,7 @@ export class Server {
     }
     
     public async stop(): Promise<void> {
+        await this.threadConnector.stop();
         this.dispatcher.stop();
         if (this._httpServer !== null) {
             this._httpServer.close();

@@ -23,6 +23,6 @@ export class Message {
     to: string;
     subject: string;
     date: Date;
-    body: string;
+    body: string; // in HTML, not Shacktags
     unread: boolean;
 }

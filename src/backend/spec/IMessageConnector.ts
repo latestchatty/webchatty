@@ -35,14 +35,12 @@ export interface IMessageConnector {
     // Gets the total number of messages in the folder as well as the number of unread messages.
     getMessageCount(credentials: spec.UserCredentials, folder: spec.Mailbox): Promise<spec.MailboxOverview>;
     
-    // Resolves true if it worked.  The caller has previously verified that the recipient username is valid.
-    sendMessage(credentials: spec.UserCredentials, recipient: string, subject: string, body: string): Promise<boolean>;
+    // The caller has previously verified that the recipient username is valid.
+    sendMessage(credentials: spec.UserCredentials, recipient: string, subject: string, body: string): Promise<void>;
     
-    // Resolves true if it worked.  If 'messageId' is invalid, the implementation may either reject with
-    // ERR_INVALID_MESSAGE, or silently ignore it.
-    markMessageRead(credentials: spec.UserCredentials, messageId: number): Promise<boolean>;
+    // If 'messageId' is invalid, the implementation may either reject with ERR_INVALID_MESSAGE, or silently ignore it.
+    markMessageRead(credentials: spec.UserCredentials, messageId: number): Promise<void>;
     
-    // Resolves true if it worked.  If 'messageId' is invalid, the implementation may either reject with
-    // ERR_INVALID_MESSAGE, or silently ignore it.
-    deleteMessage(credentials: spec.UserCredentials, messageId: number): Promise<boolean>;
+    // If 'messageId' is invalid, the implementation may either reject with ERR_INVALID_MESSAGE, or silently ignore it.
+    deleteMessage(credentials: spec.UserCredentials, messageId: number, mailbox: spec.Mailbox): Promise<void>;
 }

@@ -51,7 +51,7 @@ export class MemoryAccountConnector implements spec.IAccountConnector {
         if (account === null) {
             return <spec.UserCredentials>null; // wrong username
         } else if (account.password === password) {
-            return new spec.UserCredentials(username, account.level);
+            return new spec.UserCredentials(username, password, account.level);
         } else {
             return <spec.UserCredentials>null; // wrong password
         }

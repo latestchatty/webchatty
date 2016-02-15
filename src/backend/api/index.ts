@@ -18,6 +18,7 @@
 "use strict";
 
 export * from "./Dispatcher";
+export * from "./HttpClient";
 export * from "./QueryParser";
 export * from "./removeNukedSubthreads";
 export * from "./Server";

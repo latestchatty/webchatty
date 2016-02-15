@@ -23,12 +23,6 @@
     "compression/compression.d.ts": {
       "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
     },
-    "pg/pg.d.ts": {
-      "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
-    },
-    "mysql/mysql.d.ts": {
-      "commit": "0ea013a775ce1fb90c5e41b255e1d038714ffbe5"
-    },
     "body-parser/body-parser.d.ts": {
       "commit": "fa04c80f4a889613b96cb4f283848c61a9f64233"
     },
@@ -56,10 +50,13 @@
     "moment-timezone/moment-timezone.d.ts": {
       "commit": "40c60850ad6c8175a62d5ab48c4e016ea5b3dffe"
     },
-    "knex/knex.d.ts": {
+    "bluebird/bluebird.d.ts": {
       "commit": "bcd5761826eb567876c197ccc6a87c4d05731054"
     },
-    "bluebird/bluebird.d.ts": {
+    "form-data/form-data.d.ts": {
+      "commit": "bcd5761826eb567876c197ccc6a87c4d05731054"
+    },
+    "request/request.d.ts": {
       "commit": "bcd5761826eb567876c197ccc6a87c4d05731054"
     }
   }

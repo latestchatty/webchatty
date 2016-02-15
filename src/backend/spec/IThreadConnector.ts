@@ -28,6 +28,9 @@ export interface IThreadConnector {
     // Called when the server is about to start listening for requests.
     start(): Promise<void>;
     
+    // Called when the server is shutting down.
+    stop(): Promise<void>;
+    
     // Gets the list of recently bumped threads, starting with the most recently bumped.  
     // Only non-nuked, non-expired threads are included.  Up to "maxThreads" of the most recent threads are returned.  
     // "expirationHours" is the number of hours to retain a thread in this list.
@@ -55,5 +58,5 @@ export interface IThreadConnector {
     // Moderator-only action that changes a post's category.  The caller has verified that the user is a moderator.
     // Rejects with ERR_INVALID_POST if the post ID does not exist.
     // The thread connector must arrange for the CategoryChange event to be sent.
-    setPostCategory(postId: number, category: spec.ModerationFlag): Promise<void>;
+    setPostCategory(credentials: spec.UserCredentials, postId: number, category: spec.ModerationFlag): Promise<void>;
 }

@@ -44,6 +44,10 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
     public async start(): Promise<void> {
     }
     
+    // Called when the server is shutting down.
+    public async stop(): Promise<void> {
+    }
+    
     // Gets the list of recently bumped threads, starting with the most recently bumped.  Only non-expired threads
     // are included.  Up to "maxThreads" of the most recent threads are returned.  "expirationHours" is the number of
     // hours to retain a thread in this list.
@@ -135,7 +139,8 @@ export class MemoryThreadConnnector implements spec.IThreadConnector {
     // Moderator-only action that changes a post's category.  The caller has verified that the user is a moderator.
     // Rejects with ERR_INVALID_POST if the post ID does not exist.
     // The thread connector must arrange for the CategoryChange event to be sent.
-    public async setPostCategory(postId: number, category: spec.ModerationFlag): Promise<void> {
+    public async setPostCategory(credentials: spec.UserCredentials, postId: number, category: spec.ModerationFlag)
+            : Promise<void> {
         const post = this._posts.lookup(postId, null);
         if (post === null) {
             return Promise.reject<void>(spec.apiError("ERR_INVALID_POST", "Post ID does not exist."));

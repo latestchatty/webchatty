@@ -22,10 +22,12 @@ import * as spec from "./../index";
 // this object is only produced as the result of a successful login.  see IAccountConnector.tryLogin()
 export class UserCredentials {
     username: string;
+    password: string;
     level: spec.UserAccessLevel;
     
-    constructor(username: string, level: spec.UserAccessLevel) {
+    constructor(username: string, password: string, level: spec.UserAccessLevel) {
         this.username = username;
+        this.password = password;
         this.level = level;
     }
 }

@@ -38,7 +38,7 @@ module.exports = (server: api.Server) => {
             return Promise.reject(spec.apiError("ERR_INVALID_POST", "The post was not found."));
         }
         
-        await server.threadConnector.setPostCategory(postId, category);
+        await server.threadConnector.setPostCategory(credentials, postId, category);
         return { result: "success" };
     });
 };
