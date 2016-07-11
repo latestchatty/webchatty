@@ -170,12 +170,11 @@ export class ShacknewsThreadConnector {
         const m = re.exec(response);
         if (m === null) {
             return Promise.reject("Unable to parse the new post ID from the Shacknews response.");
-        } else {
-            return parseInt(m[1]);
         }
         
         // trigger an immediate check for new posts and post changes.  this will send the NewPost event.
         await this._pollTimer.triggerNow();
+        return parseInt(m[1]);
     }
     
     // Resolves the newest post ID in the database, or 0 if there are no posts.  The newest post may be nuked.
